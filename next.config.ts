@@ -8,6 +8,10 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
+  turbopack: {
+    // Keep Next root scoped to this project (avoid parent lockfile inference).
+    root: __dirname,
+  },
   async rewrites() {
     return [
       {

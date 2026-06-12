@@ -417,8 +417,9 @@ export default function HeroPhoneMockup({
     <div
       className={cn(
         "hero-lina-chat-mockup relative mx-auto w-full shrink-0 overflow-visible",
+        compact && "hero-lina-chat-mockup--compact",
         compact
-          ? "h-[min(360px,72vw)] max-w-[280px] sm:h-[400px] sm:max-w-[300px] lg:h-[560px] lg:max-w-[400px]"
+          ? "h-[min(360px,72vw)] max-w-[280px] sm:h-[400px] sm:max-w-[300px] lg:max-w-[400px]"
           : "h-[440px] max-w-[320px] sm:h-[480px] sm:max-w-[350px]",
       )}
     >
@@ -427,7 +428,7 @@ export default function HeroPhoneMockup({
         className="pointer-events-none absolute -inset-3 -z-10 rounded-3xl bg-gradient-to-b from-purple-400/[0.08] via-purple-400/[0.02] to-transparent blur-xl sm:-inset-4 lg:-inset-5"
       />
 
-      <div className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-slate-200/60 bg-[#fafaf9] shadow-[0_1px_2px_rgba(15,23,42,0.03),0_16px_40px_-14px_rgba(15,23,42,0.1)] dark:border-slate-800/70 dark:bg-[#0f1115]">
+      <div className="hero-lina-chat-card flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl border border-slate-200/60 bg-[#fafaf9] shadow-[0_1px_2px_rgba(15,23,42,0.03),0_16px_40px_-14px_rgba(15,23,42,0.1)] dark:border-slate-800/70 dark:bg-[#0f1115]">
         <header
           className={cn(
             "shrink-0 border-b border-purple-100/50 bg-gradient-to-b from-purple-50/40 to-white/80 px-3 py-2 dark:border-purple-500/10 dark:from-purple-500/5 dark:to-slate-900/40 sm:px-3.5 sm:py-2.5",
@@ -455,8 +456,10 @@ export default function HeroPhoneMockup({
               </p>
               <p
                 className={cn(
-                  "mt-0.5 text-[10px] text-slate-500 transition-opacity duration-300 dark:text-slate-400",
-                  cartItemCount > 0 ? "hero-chat-animate-in opacity-100" : "opacity-0",
+                  "mt-0.5 min-h-[14px] text-[10px] leading-snug text-slate-500 transition-opacity duration-300 dark:text-slate-400",
+                  cartItemCount > 0
+                    ? "hero-chat-animate-in opacity-100"
+                    : "opacity-0 lg:invisible",
                 )}
                 aria-hidden={cartItemCount === 0}
               >
@@ -468,7 +471,7 @@ export default function HeroPhoneMockup({
 
         <div
           ref={chatScrollRef}
-          className="min-h-0 flex-1 space-y-3.5 overflow-y-auto overscroll-contain px-3 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="hero-chat-scroll min-h-0 flex-1 space-y-3.5 overflow-y-auto overscroll-contain px-3 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {turns.map((turn, index) => {
             if (index > turnIndex) return null;

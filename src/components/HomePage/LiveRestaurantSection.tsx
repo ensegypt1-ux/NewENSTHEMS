@@ -59,26 +59,12 @@ export default async function LiveRestaurantSection({
     status: t(`dashboard.orders.${n}.status`) as OrderStatus,
   }));
 
-  const alertIds = ["qrScan", "kitchen", "newOrder"] as const;
-  const alertTones = {
-    qrScan: "emerald",
-    kitchen: "amber",
-    newOrder: "purple",
-  } as const;
-
-  const alerts = alertIds.map((id) => ({
-    id,
-    title: t(`alerts.${id}.title`),
-    subtitle: t(`alerts.${id}.subtitle`),
-    tone: alertTones[id] as "emerald" | "amber" | "purple",
-  }));
-
   return (
     <section
       id="live-restaurant"
-      className="live-restaurant-section relative border-t border-slate-100 dark:border-slate-800/80"
+      className="live-restaurant-section relative border-t border-purple-100/40 dark:border-purple-500/10"
     >
-      <div className="home-section-shell relative z-[1] py-8 pb-12 sm:py-12 sm:pb-12 lg:py-20">
+      <div className="home-section-shell relative z-[1] py-10 pb-14 sm:py-12 sm:pb-12 lg:py-20">
         <LiveRestaurantShowcase
           badge={t("badge")}
           title={t("title")}
@@ -112,9 +98,7 @@ export default async function LiveRestaurantSection({
           statusLabels={statusLabels}
           products={products}
           orders={orders}
-          alerts={alerts}
           trustTagline={t("trustTagline")}
-          mobileSwipeHint={t("mobileSwipeHint")}
         />
       </div>
 

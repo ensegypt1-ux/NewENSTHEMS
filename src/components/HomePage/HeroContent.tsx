@@ -82,7 +82,7 @@ export default async function HeroContent({ locale }: HeroContentProps) {
             <MarketingText variant="caption">{t("trustLine")}</MarketingText>
           </MarketingSplitContent>
 
-          <MarketingSplitVisual className="hero-lina-chat-visual mx-auto w-full max-w-[min(100%,280px)] sm:max-w-[300px] lg:mx-0 lg:max-w-[420px] lg:py-4">
+          <MarketingSplitVisual className="hero-lina-chat-visual mx-auto w-full max-w-[min(100%,280px)] sm:max-w-[300px] lg:mx-0 lg:w-[min(100%,400px)] lg:min-w-[320px] lg:max-w-[400px] lg:shrink-0 lg:py-4">
             <HeroPhoneMockup
               businessName={t("businessName")}
               turns={chatTurns}

@@ -316,32 +316,6 @@ body:has(.register-page) {
   }
 }
 
-@keyframes menu-import-ai-scan {
-  0%,
-  100% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  45% {
-    opacity: 0.35;
-  }
-  50% {
-    transform: translateY(100%);
-    opacity: 0.2;
-  }
-}
-
-@keyframes menu-import-sparkle-float {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-    opacity: 0.55;
-  }
-  50% {
-    transform: translateY(-3px) scale(1.08);
-    opacity: 1;
-  }
-}
 
 @keyframes menu-import-progress-shimmer {
   0% {
@@ -524,22 +498,6 @@ body:has(.register-page) {
   }
 }
 
-@keyframes menu-import-ai-laser-sweep {
-  0% {
-    top: 12%;
-    opacity: 0;
-  }
-  15% {
-    opacity: 0.85;
-  }
-  85% {
-    opacity: 0.85;
-  }
-  100% {
-    top: 88%;
-    opacity: 0;
-  }
-}
 
 @keyframes menu-import-ai-grid-shift {
   0% {
@@ -572,19 +530,6 @@ body:has(.register-page) {
   }
 }
 
-@keyframes menu-import-card-pulse {
-  0%,
-  100% {
-    box-shadow:
-      0 2px 12px -6px rgb(15 23 42 / 0.06),
-      0 0 0 0 rgb(124 58 237 / 0);
-  }
-  50% {
-    box-shadow:
-      0 8px 24px -10px rgb(124 58 237 / 0.12),
-      0 0 0 1px rgb(124 58 237 / 0.08);
-  }
-}
 
 @keyframes menu-import-check-pop-in {
   0% {
@@ -700,6 +645,94 @@ body:has(.register-page) {
 
 .hero-lina-chat-mockup {
   overflow: visible;
+}
+
+@media (min-width: 1024px) {
+  .hero-lina-chat-visual {
+    --hero-lina-chat-height: 560px;
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    width: min(100%, 400px);
+    min-width: 320px;
+    height: var(--hero-lina-chat-height);
+    min-height: var(--hero-lina-chat-height);
+    max-height: var(--hero-lina-chat-height);
+    overflow: visible;
+  }
+
+  .hero-lina-chat-mockup {
+    box-sizing: border-box;
+    width: 100%;
+    flex: 0 0 var(--hero-lina-chat-height);
+    height: var(--hero-lina-chat-height) !important;
+    min-height: var(--hero-lina-chat-height) !important;
+    max-height: var(--hero-lina-chat-height) !important;
+    overflow: hidden;
+  }
+
+  .hero-lina-chat-mockup--compact {
+    --hero-lina-chat-header: 76px;
+    --hero-lina-chat-footer: 52px;
+  }
+
+  .hero-lina-chat-mockup:not(.hero-lina-chat-mockup--compact) {
+    --hero-lina-chat-header: 72px;
+    --hero-lina-chat-footer: 52px;
+  }
+
+  .hero-lina-chat-card {
+    position: relative;
+    display: block;
+    height: var(--hero-lina-chat-height) !important;
+    min-height: var(--hero-lina-chat-height) !important;
+    max-height: var(--hero-lina-chat-height) !important;
+    overflow: hidden;
+  }
+
+  .hero-lina-chat-card > header {
+    position: absolute;
+    z-index: 2;
+    inset-inline: 0;
+    top: 0;
+    height: var(--hero-lina-chat-header);
+    max-height: var(--hero-lina-chat-header);
+    overflow: hidden;
+  }
+
+  .hero-lina-chat-card > footer {
+    position: absolute;
+    z-index: 2;
+    inset-inline: 0;
+    bottom: 0;
+    height: var(--hero-lina-chat-footer);
+    max-height: var(--hero-lina-chat-footer);
+    overflow: hidden;
+  }
+
+  .hero-lina-chat-card > .hero-chat-scroll {
+    position: absolute;
+    z-index: 1;
+    inset-inline: 0;
+    top: var(--hero-lina-chat-header);
+    bottom: var(--hero-lina-chat-footer);
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    flex: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .hero-lina-chat-card .hero-chat-animate-in {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .hero-lina-visual {
@@ -944,25 +977,6 @@ html.experience-scroll {
     transition: width 0.65s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .menu-import-energy-wave {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgb(167 139 250 / 0.12) 35%,
-      rgb(124 58 237 / 0.18) 50%,
-      rgb(167 139 250 / 0.12) 65%,
-      transparent 100%
-    );
-    background-size: 220% 100%;
-    animation: menu-import-energy-flow 5.5s ease-in-out infinite;
-    filter: blur(10px);
-    opacity: 0.65;
-  }
-
-  [dir="rtl"] .menu-import-energy-wave {
-    animation-direction: reverse;
-  }
-
   .menu-import-progress-bar {
     width: 0;
     animation: menu-import-progress 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
@@ -1049,22 +1063,6 @@ html.experience-scroll {
     animation: menu-import-ai-ring-spin 4s linear infinite;
   }
 
-  .menu-import-ai-scan {
-    animation: menu-import-ai-scan 2.2s ease-in-out infinite;
-  }
-
-  .menu-import-sparkle {
-    animation: menu-import-sparkle-float 2s ease-in-out infinite;
-  }
-
-  .menu-import-sparkle--delay {
-    animation-delay: 0.35s;
-  }
-
-  .menu-import-sparkle--delay-2 {
-    animation-delay: 0.7s;
-  }
-
   .menu-import-connector-dot {
     animation: menu-import-connector-travel 1.5s ease-in-out infinite;
   }
@@ -1100,20 +1098,12 @@ html.experience-scroll {
     animation: menu-import-ai-grid-shift 3s linear infinite;
   }
 
-  .menu-import-ai-laser {
-    animation: menu-import-ai-laser-sweep 2s ease-in-out infinite;
-  }
-
   .menu-import-ai-orbit {
     animation: menu-import-ai-orbit-pulse 2.6s ease-in-out infinite;
   }
 
   .menu-import-progress-glow {
     animation: menu-import-progress-glow-pulse 2s ease-in-out infinite;
-  }
-
-  .menu-import-step-card--pulse {
-    animation: menu-import-card-pulse 2.4s ease-in-out infinite;
   }
 
   .menu-import-step-card--current:hover {
@@ -1172,7 +1162,7 @@ html.experience-scroll {
     animation: menu-import-finale-glow 3s ease-in-out infinite;
   }
 
-  .menu-import-story-visible .menu-import-step,
+  .menu-import-story-visible .menu-import-step:not(.menu-import-step--focus),
   .menu-import-story-visible .menu-import-highlight {
     animation: menu-import-step-in 0.5s ease-out forwards;
     opacity: 0;
@@ -1222,10 +1212,20 @@ html.experience-scroll {
     .menu-import-step-card:hover {
       transform: none;
     }
+
+    .menu-import-step--timeline:not(.menu-import-step--current),
+    .menu-import-step--timeline.menu-import-step--current {
+      transform: none;
+    }
+
+    .menu-import-step--timeline.menu-import-step--current.menu-import-step--finale
+      .menu-import-phone-shell {
+      animation: none;
+      transform: none;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .menu-import-energy-wave,
     .menu-import-progress-shimmer,
     .menu-import-progress-sheen,
     .menu-import-icon-active .menu-import-step-icon,
@@ -1239,19 +1239,16 @@ html.experience-scroll {
     .menu-import-ai-ring,
     .menu-import-ai-orbit,
     .menu-import-ai-grid,
-    .menu-import-ai-laser,
-    .menu-import-ai-scan,
     .menu-import-progress-glow,
-    .menu-import-sparkle,
     .menu-import-connector-dot,
     .menu-import-connector-dot-vertical,
     .menu-import-connector-glow,
     .menu-import-connector-trail,
     .menu-import-global-progress,
     .menu-import-step-badge--current,
-    .menu-import-step-card--pulse,
     .menu-import-check-pop,
     .menu-import-photo-row,
+    .menu-import-product-row--in,
     .menu-import-stand-float,
     .menu-import-phone-glow,
     .menu-import-scan-beam,
@@ -1270,8 +1267,15 @@ html.experience-scroll {
       animation: none;
     }
 
-    .menu-import-step--current {
+    .menu-import-step--timeline:not(.menu-import-step--current),
+    .menu-import-step--timeline.menu-import-step--current {
       transform: none;
+      opacity: 1;
+    }
+
+    .menu-import-step--timeline.menu-import-step--current.menu-import-step--finale
+      .menu-import-phone-shell {
+      animation: none;
     }
   }
 
@@ -2546,27 +2550,241 @@ textarea {
 }
 
 .menu-import-story-panel {
-  --menu-import-step-w: min(72vw, 17.5rem);
+  --menu-import-step-w: min(78vw, 17.5rem);
 }
 
-.menu-import-mobile-focus {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.menu-import-story-timeline {
+  overflow-x: clip;
+  overflow-y: visible;
   overflow-anchor: none;
+  padding-block: 0.65rem;
 }
 
-.menu-import-focus-stage {
-  contain: layout style;
+.menu-import-steps-timeline {
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 50%;
+  padding: 0.5rem calc(50% - (var(--menu-import-step-w) / 2)) 0.85rem;
+  -webkit-overflow-scrolling: touch;
+  overflow-anchor: none;
+  touch-action: pan-x;
+}
+
+.menu-import-step--timeline {
+  transform-origin: center center;
+}
+
+.menu-import-step--timeline:not(.menu-import-step--current) {
+  opacity: 0.46;
+  transform: scale(0.9);
+}
+
+.menu-import-step--timeline.menu-import-step--current {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.menu-import-step-card {
   overflow: visible;
-  overflow-anchor: none;
 }
 
-.menu-import-focus-step {
-  display: flex;
-  justify-content: center;
-  overflow-anchor: none;
+.menu-import-step-card--live {
+  --menu-import-live-card-h: clamp(12.5rem, 42vw, 14.5rem);
+  --menu-import-live-phone-h: calc(var(--menu-import-live-card-h) * 0.7);
+  min-height: var(--menu-import-live-card-h);
+  padding: 0.7rem 0.85rem;
+  border-color: rgb(233 213 255 / 0.72);
+  background: linear-gradient(
+    180deg,
+    rgb(255 255 255) 0%,
+    rgb(250 245 255 / 0.55) 100%
+  );
+  box-shadow:
+    0 10px 36px -14px rgb(124 58 237 / 0.22),
+    0 2px 12px -6px rgb(15 23 42 / 0.06);
 }
+
+.dark .menu-import-step-card--live {
+  border-color: rgb(139 92 246 / 0.28);
+  background: linear-gradient(
+    180deg,
+    rgb(15 17 23 / 0.92) 0%,
+    rgb(124 58 237 / 0.06) 100%
+  );
+}
+
+.menu-import-live-phone-wrap {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.35rem;
+  overflow: visible;
+}
+
+.menu-import-phone-shell {
+  position: relative;
+  width: min(76%, 10.75rem);
+  height: var(--menu-import-live-phone-h);
+  max-height: 100%;
+  margin-inline: auto;
+  flex-shrink: 0;
+  transform-origin: center center;
+}
+
+.menu-import-phone-shell-frame {
+  position: relative;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  border-radius: 1.2rem;
+  border: 1px solid rgb(148 163 184 / 0.55);
+  background: linear-gradient(180deg, rgb(51 65 85) 0%, rgb(15 23 42) 100%);
+  padding: 3px;
+  box-shadow: 0 10px 28px -16px rgb(15 23 42 / 0.45);
+}
+
+.dark .menu-import-phone-shell-frame {
+  border-color: rgb(100 116 139 / 0.45);
+}
+
+@media (max-width: 1023px) {
+  .menu-import-phone-shell-frame {
+    box-shadow:
+      0 10px 28px -16px rgb(15 23 42 / 0.42),
+      0 0 0 1px rgb(148 163 184 / 0.12);
+  }
+
+  .dark .menu-import-phone-shell-frame {
+    box-shadow:
+      0 10px 28px -16px rgb(0 0 0 / 0.45),
+      0 0 0 1px rgb(100 116 139 / 0.18);
+  }
+
+  .menu-import-step--timeline.menu-import-step--current .menu-import-phone-shell-frame {
+    box-shadow:
+      0 14px 34px -16px rgb(124 58 237 / 0.24),
+      0 10px 28px -16px rgb(15 23 42 / 0.42),
+      0 0 0 1px rgb(167 139 250 / 0.16);
+  }
+
+  .dark .menu-import-step--timeline.menu-import-step--current .menu-import-phone-shell-frame {
+    box-shadow:
+      0 14px 34px -16px rgb(124 58 237 / 0.28),
+      0 10px 28px -16px rgb(0 0 0 / 0.45),
+      0 0 0 1px rgb(139 92 246 / 0.2);
+  }
+}
+
+.menu-import-phone-screen {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 1.02rem;
+  background: white;
+}
+
+.dark .menu-import-phone-screen {
+  background: #0a0c10;
+}
+
+.menu-import-live-phone-content {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.menu-import-step--timeline.menu-import-step--current.menu-import-step--finale
+  .menu-import-phone-shell {
+  animation: menu-import-phone-float 4.2s ease-in-out infinite;
+}
+
+.menu-import-step--timeline:not(.menu-import-step--current) .menu-import-phone-shell-frame {
+  box-shadow: 0 8px 22px -14px rgb(15 23 42 / 0.35);
+}
+
+.menu-import-step--timeline.menu-import-step--current .menu-import-phone-shell-frame {
+  box-shadow:
+    0 16px 36px -18px rgb(124 58 237 / 0.22),
+    0 10px 28px -16px rgb(15 23 42 / 0.45);
+}
+
+@keyframes menu-import-phone-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.menu-import-steps-timeline .menu-import-product-row {
+  grid-template-columns: 2.5rem minmax(0, 1fr) 1.25rem;
+  column-gap: 0.5rem;
+}
+
+.menu-import-steps-timeline .menu-import-product-row p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 1024px) {
+  .menu-import-story-panel {
+    --menu-import-step-w: 16rem;
+  }
+
+  .menu-import-step-card--live {
+    --menu-import-live-card-h: 14.25rem;
+    --menu-import-live-phone-h: calc(var(--menu-import-live-card-h) * 0.72);
+    padding: 0.75rem 0.9rem;
+  }
+
+  .menu-import-phone-shell {
+    width: min(74%, 10.5rem);
+  }
+
+  .menu-import-timeline-fade {
+    width: 3rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .menu-import-story-panel {
+    --menu-import-step-w: 16.75rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .menu-import-story-panel {
+    --menu-import-step-w: 17.25rem;
+  }
+}
+
+.menu-import-product-row {
+  width: 100%;
+}
+
+@keyframes menu-import-product-row-in {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.menu-import-product-row--in {
+  animation: menu-import-product-row-in 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
 
 .menu-import-story-panel {
   overflow-anchor: none;
@@ -2574,12 +2792,6 @@ textarea {
 
 .menu-import-ai-stage {
   overflow: visible;
-}
-
-.menu-import-steps-timeline {
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
 }
 
 .menu-import-mobile-timeline {
@@ -3248,24 +3460,150 @@ textarea {
 
 /* ── Live restaurant section ── */
 
-@keyframes live-restaurant-float {
+@keyframes live-restaurant-step-num-pulse {
   0%,
   100% {
-    transform: translateY(0);
+    box-shadow: 0 2px 8px -2px rgb(124 58 237 / 0.32);
+    transform: scale(1);
   }
   50% {
-    transform: translateY(-5px);
+    box-shadow: 0 3px 12px -2px rgb(124 58 237 / 0.42);
+    transform: scale(1.06);
   }
 }
 
-@keyframes live-restaurant-glow-pulse {
-  0%,
-  100% {
-    opacity: 0.45;
-  }
-  50% {
-    opacity: 0.85;
-  }
+.live-restaurant-steps-stage {
+  --step-progress: 0;
+  padding-block: 0.125rem;
+}
+
+.live-restaurant-steps-connector {
+  position: absolute;
+  z-index: 0;
+  top: 1.375rem;
+  inset-inline: 16.67%;
+  height: 2px;
+  pointer-events: none;
+}
+
+.live-restaurant-steps-connector-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgb(233 213 255 / 0.45);
+}
+
+.dark .live-restaurant-steps-connector-track {
+  background: rgb(139 92 246 / 0.14);
+}
+
+.live-restaurant-steps-connector-fill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 100%;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    rgb(167 139 250 / 0.55),
+    rgb(124 58 237 / 0.75)
+  );
+  transform: scaleX(var(--step-progress, 0));
+  transform-origin: inline-start;
+  transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+[dir="rtl"] .live-restaurant-steps-connector-fill {
+  background: linear-gradient(
+    to left,
+    rgb(167 139 250 / 0.55),
+    rgb(124 58 237 / 0.75)
+  );
+}
+
+.live-restaurant-step {
+  border: 1px solid rgb(243 232 255 / 0.65);
+  background: rgb(255 255 255 / 0.55);
+  transform: scale(1);
+  opacity: 0.9;
+  transition:
+    transform 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.55s ease,
+    box-shadow 0.55s ease,
+    border-color 0.55s ease,
+    background 0.55s ease;
+  will-change: transform, opacity;
+}
+
+.dark .live-restaurant-step {
+  border-color: rgb(139 92 246 / 0.1);
+  background: rgb(255 255 255 / 0.02);
+}
+
+.live-restaurant-step--idle {
+  box-shadow: none;
+}
+
+.live-restaurant-step--active {
+  z-index: 1;
+  border-color: rgb(216 180 254 / 0.55);
+  background: linear-gradient(
+    180deg,
+    rgb(250 245 255 / 0.95) 0%,
+    rgb(255 255 255 / 0.88) 55%,
+    rgb(255 255 255 / 0.78) 100%
+  );
+  box-shadow: 0 6px 24px -10px rgb(124 58 237 / 0.16);
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+.dark .live-restaurant-step--active {
+  border-color: rgb(139 92 246 / 0.22);
+  background: linear-gradient(
+    180deg,
+    rgb(124 58 237 / 0.12) 0%,
+    rgb(255 255 255 / 0.04) 55%,
+    rgb(255 255 255 / 0.02) 100%
+  );
+  box-shadow: 0 8px 28px -12px rgb(124 58 237 / 0.2);
+}
+
+.live-restaurant-step-num--idle {
+  background: rgb(250 245 255 / 0.85);
+  color: rgb(124 58 237);
+  box-shadow: inset 0 0 0 1px rgb(233 213 255 / 0.65);
+}
+
+.dark .live-restaurant-step-num--idle {
+  background: rgb(124 58 237 / 0.1);
+  color: rgb(196 181 253);
+  box-shadow: inset 0 0 0 1px rgb(139 92 246 / 0.14);
+}
+
+.live-restaurant-step-num--active {
+  background: linear-gradient(145deg, rgb(124 58 237), rgb(109 40 217));
+  color: white;
+  animation: live-restaurant-step-num-pulse 2.8s ease-in-out infinite;
+}
+
+.live-restaurant-step-label--idle {
+  font-weight: 400;
+  color: rgb(100 116 139);
+}
+
+.dark .live-restaurant-step-label--idle {
+  color: rgb(100 116 139);
+}
+
+.live-restaurant-step-label--active {
+  font-weight: 500;
+  color: rgb(51 65 85);
+}
+
+.dark .live-restaurant-step-label--active {
+  color: rgb(226 232 240);
 }
 
 @keyframes live-restaurant-live-dot {
@@ -3308,10 +3646,6 @@ textarea {
 
 .dark .live-restaurant-section {
   background: rgb(13 17 23);
-}
-
-.live-dashboard-glow {
-  display: none;
 }
 
 .live-feature-carousel {
@@ -3360,6 +3694,260 @@ textarea {
   max-width: 100%;
 }
 
+.live-restaurant-live-badge--pulse {
+  animation: live-restaurant-badge-soft-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes live-restaurant-badge-soft-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(16 185 129 / 0);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgb(16 185 129 / 0.08);
+  }
+}
+
+@media (max-width: 1023px) {
+  .live-restaurant-phone-stage {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    padding: 0.85rem 0.65rem 1.1rem;
+    overflow: visible;
+  }
+
+  .live-restaurant-phone {
+    --live-phone-w: clamp(11.25rem, 78vw, 17rem);
+    width: var(--live-phone-w);
+    height: clamp(15.5rem, calc(var(--live-phone-w) * 1.62), 18.25rem);
+    margin-inline: auto;
+    flex-shrink: 0;
+  }
+
+  .live-restaurant-phone-bezel {
+    position: relative;
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: column;
+    border-radius: 1.85rem;
+    border: 1px solid rgb(148 163 184 / 0.32);
+    background: linear-gradient(180deg, rgb(71 85 105) 0%, rgb(15 23 42) 100%);
+    padding: 2px;
+    box-shadow:
+      0 12px 32px -20px rgb(15 23 42 / 0.28),
+      0 4px 14px -10px rgb(124 58 237 / 0.1);
+  }
+
+  .dark .live-restaurant-phone-bezel {
+    border-color: rgb(100 116 139 / 0.28);
+    box-shadow:
+      0 14px 36px -20px rgb(0 0 0 / 0.38),
+      0 4px 14px -10px rgb(124 58 237 / 0.12);
+  }
+
+  .live-restaurant-phone-island-row {
+    position: absolute;
+    inset-inline: 0;
+    top: 8px;
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .live-restaurant-phone-island {
+    display: block;
+    width: 20%;
+    max-width: 2.35rem;
+    height: 3.5px;
+    border-radius: 9999px;
+    background: rgb(2 6 23 / 0.82);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+  }
+
+  .live-restaurant-phone-screen {
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 1.68rem;
+    background: rgb(255 255 255);
+    padding-top: 0.95rem;
+  }
+
+  .dark .live-restaurant-phone-screen {
+    background: rgb(15 17 23);
+  }
+
+  .live-restaurant-phone-order {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .live-restaurant-phone-order-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.45rem;
+    border-bottom: 1px solid rgb(233 213 255 / 0.4);
+    background: linear-gradient(
+      180deg,
+      rgb(250 245 255 / 0.88) 0%,
+      rgb(255 255 255 / 0.98) 100%
+    );
+    padding: 0.5rem 0.85rem 0.55rem;
+  }
+
+  .dark .live-restaurant-phone-order-header {
+    border-bottom-color: rgb(139 92 246 / 0.12);
+    background: linear-gradient(
+      180deg,
+      rgb(124 58 237 / 0.07) 0%,
+      rgb(15 17 23 / 0.98) 100%
+    );
+  }
+
+  .live-restaurant-phone-order-title {
+    font-size: 0.6875rem;
+    line-height: 1.25;
+  }
+
+  .live-restaurant-phone-live-badge {
+    gap: 0.25rem;
+    padding: 0.125rem 0.375rem;
+    font-size: 0.5625rem;
+    line-height: 1.2;
+  }
+
+  .live-restaurant-phone-live-badge .live-restaurant-live-dot {
+    height: 0.3rem;
+    width: 0.3rem;
+  }
+
+  .live-restaurant-phone-order-body {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .live-restaurant-phone-order-glow {
+    position: relative;
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 0.85rem 0.85rem 0.9rem;
+  }
+
+  .live-restaurant-phone-order-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0.5rem 0.65rem auto;
+    height: 2.75rem;
+    border-radius: 0.65rem;
+    background: radial-gradient(
+      ellipse 90% 100% at 50% 0%,
+      rgb(124 58 237 / 0.07) 0%,
+      transparent 75%
+    );
+    pointer-events: none;
+  }
+
+  .dark .live-restaurant-phone-order-glow::before {
+    background: radial-gradient(
+      ellipse 90% 100% at 50% 0%,
+      rgb(139 92 246 / 0.1) 0%,
+      transparent 75%
+    );
+  }
+
+  .live-restaurant-phone-order-block {
+    position: relative;
+    z-index: 1;
+  }
+
+  .live-restaurant-phone-order-block--table {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.65rem;
+  }
+
+  .live-restaurant-phone-order-label {
+    font-size: 0.5625rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: rgb(100 116 139);
+  }
+
+  .dark .live-restaurant-phone-order-label {
+    color: rgb(148 163 184);
+  }
+
+  .live-restaurant-phone-order-table-num {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: rgb(124 58 237);
+  }
+
+  .dark .live-restaurant-phone-order-table-num {
+    color: rgb(167 139 250);
+  }
+
+  .live-restaurant-phone-order-block--items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .live-restaurant-phone-order-items {
+    font-size: 0.625rem;
+    line-height: 1.45;
+    color: rgb(51 65 85);
+  }
+
+  .dark .live-restaurant-phone-order-items {
+    color: rgb(226 232 240);
+  }
+
+  .live-restaurant-phone-order-footer {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    margin-top: auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border-top: 1px solid rgb(233 213 255 / 0.35);
+    padding-top: 0.7rem;
+  }
+
+  .dark .live-restaurant-phone-order-footer {
+    border-top-color: rgb(139 92 246 / 0.12);
+  }
+
+  .live-restaurant-phone-order-time {
+    font-size: 0.5625rem;
+    line-height: 1.3;
+    color: rgb(148 163 184);
+  }
+
+  .live-restaurant-mobile-features {
+    margin-top: 0.25rem;
+  }
+
+  .live-restaurant-mobile-feature:active {
+    box-shadow: 0 4px 20px -12px rgb(124 58 237 / 0.14);
+  }
+}
+
 .live-stats-scroll {
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
@@ -3385,23 +3973,38 @@ textarea {
   animation-name: live-order-slide-in;
 }
 
-.live-floating-alert {
-  animation: live-restaurant-float 4.5s ease-in-out infinite;
-}
-
 .live-restaurant-live-dot {
   animation: live-restaurant-live-dot 1.8s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .live-floating-alert,
   .live-restaurant-live-dot,
-  .dark .live-dashboard-glow,
+  .live-restaurant-live-badge--pulse,
+  .live-restaurant-step-num--active,
   .live-feature-card--visible,
   .live-stat-card--visible,
   .live-order-row--visible {
     animation: none;
     opacity: 1;
+  }
+
+  .live-restaurant-step--active {
+    transform: scale(1);
+  }
+
+  .live-restaurant-steps-connector-fill {
+    transition: none;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .live-restaurant-phone {
+    --live-phone-w: clamp(12rem, 62vw, 17.25rem);
+    height: clamp(16rem, calc(var(--live-phone-w) * 1.58), 18.75rem);
+  }
+
+  .live-restaurant-phone-stage {
+    padding: 1rem 0.85rem 1.25rem;
   }
 }
 

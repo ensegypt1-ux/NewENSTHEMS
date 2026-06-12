@@ -46,13 +46,6 @@ export type OrderStatusLabels = {
   done: string;
 };
 
-export type LiveAlert = {
-  id: string;
-  title: string;
-  subtitle: string;
-  tone: "emerald" | "amber" | "purple";
-};
-
 export type MobileFeature = {
   id: string;
   title: string;
@@ -85,9 +78,7 @@ export type LiveRestaurantShowcaseProps = {
   statusLabels: OrderStatusLabels;
   products: LiveProduct[];
   orders: LiveOrder[];
-  alerts: LiveAlert[];
   trustTagline: string;
-  mobileSwipeHint?: string;
 };
 
 const FEATURE_ICONS = {
@@ -112,21 +103,57 @@ const OPS_ICONS = {
   "5": FiBarChart2,
 } as const;
 
+/** Consistent icon treatment across the section */
+const ICON_STROKE = 1.75;
+const ICON_SIZE = 16;
+const ICON_SIZE_SM = 14;
+
+const CARD_SURFACE =
+  "rounded-xl border border-purple-100/35 bg-white/80 shadow-[0_4px_24px_-16px_rgba(124,58,237,0.08)] backdrop-blur-sm dark:border-purple-500/10 dark:bg-white/[0.04] dark:shadow-[0_8px_32px_-18px_rgba(0,0,0,0.35)]";
+
 const ORDER_STATUS_TONE = {
-  new: "border-sky-200/80 bg-sky-50 text-sky-700 dark:border-sky-500/25 dark:bg-sky-500/10 dark:text-sky-300",
+  new: "bg-sky-50/95 text-sky-600 ring-1 ring-sky-100/70 dark:bg-sky-500/10 dark:text-sky-300 dark:ring-sky-500/15",
   progress:
-    "border-amber-200/80 bg-amber-50 text-amber-700 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-300",
-  done: "border-emerald-200/80 bg-emerald-50 text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-300",
+    "bg-orange-50/95 text-orange-600 ring-1 ring-orange-100/70 dark:bg-orange-500/10 dark:text-orange-300 dark:ring-orange-500/15",
+  done: "bg-emerald-50/95 text-emerald-600 ring-1 ring-emerald-100/70 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/15",
 } as const;
 
-const ALERT_TONE = {
-  emerald:
-    "border-emerald-400/40 bg-emerald-50/95 shadow-[0_8px_28px_-12px_rgba(16,185,129,0.3)] dark:border-emerald-500/30 dark:bg-emerald-500/10",
-  amber:
-    "border-amber-400/40 bg-amber-50/95 shadow-[0_8px_28px_-12px_rgba(245,158,11,0.28)] dark:border-amber-500/30 dark:bg-amber-500/10",
-  purple:
-    "border-purple-300/50 bg-white/95 shadow-[0_10px_32px_-14px_rgba(124,58,237,0.3)] dark:border-purple-500/35 dark:bg-purple-500/10",
-} as const;
+const LIVE_STATUS_BADGE =
+  "inline-flex items-center gap-1 rounded-full bg-emerald-50/95 px-2 py-0.5 text-[9px] font-medium text-emerald-600 ring-1 ring-emerald-100/60 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/15";
+
+function LiveIconBox({
+  children,
+  size = "md",
+}: {
+  children: React.ReactNode;
+  size?: "sm" | "md";
+}) {
+  return (
+    <span
+      className={cn(
+        "flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-50 to-violet-50/70 text-purple-600 ring-1 ring-purple-100/50 dark:from-purple-500/12 dark:to-violet-500/8 dark:text-purple-400 dark:ring-purple-500/12",
+        size === "sm" ? "h-8 w-8" : "h-9 w-9",
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+function LiveMintBadge({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <span className={cn(LIVE_STATUS_BADGE, className)}>
+      <span className="live-restaurant-live-dot h-1.5 w-1.5 rounded-full bg-emerald-400" />
+      {children}
+    </span>
+  );
+}
 
 type ShowcaseSlice = Omit<
   LiveRestaurantShowcaseProps,
@@ -156,11 +183,16 @@ function SectionHeader({
     <header
       className={cn(
         "mx-auto max-w-3xl text-center",
-        mobile ? "mb-8 px-1" : "mb-9",
+        mobile ? "mb-10 px-1 sm:mb-11" : "mb-9",
       )}
     >
-      <span className="live-restaurant-badge mb-3 inline-flex items-center gap-2 rounded-full border border-purple-200/80 bg-purple-50/90 px-3.5 py-1 text-[11px] font-semibold text-purple-700 dark:border-purple-500/25 dark:bg-purple-500/10 dark:text-purple-300">
-        <span className="live-restaurant-live-dot h-1.5 w-1.5 rounded-full bg-purple-500" />
+      <span
+        className={cn(
+          "live-restaurant-badge inline-flex items-center gap-2 rounded-full border border-purple-100/60 bg-purple-50/80 px-3.5 py-1 text-[11px] font-medium text-purple-700 shadow-[0_2px_12px_-6px_rgba(124,58,237,0.12)] backdrop-blur-sm dark:border-purple-500/15 dark:bg-purple-500/8 dark:text-purple-300",
+          mobile ? "mb-4" : "mb-3",
+        )}
+      >
+        <span className="live-restaurant-live-dot h-1.5 w-1.5 rounded-full bg-purple-400" />
         {badge}
       </span>
       <h2
@@ -182,8 +214,10 @@ function SectionHeader({
       </h2>
       <p
         className={cn(
-          "mx-auto mt-3 max-w-2xl leading-relaxed text-slate-600 dark:text-slate-400",
-          mobile ? "text-[14px] leading-relaxed" : "text-base lg:text-[17px]",
+          "mx-auto max-w-2xl leading-relaxed text-slate-600 dark:text-slate-400",
+          mobile
+            ? "mt-4 text-[14px] leading-[1.65]"
+            : "mt-3 text-base lg:text-[17px]",
         )}
       >
         {subtitle}
@@ -192,23 +226,88 @@ function SectionHeader({
   );
 }
 
-function MobileStepFlow({ steps }: { steps: [string, string, string] }) {
+const STEP_CYCLE_MS = 2800;
+
+function MobileStepFlow({
+  steps,
+  animate = true,
+}: {
+  steps: [string, string, string];
+  animate?: boolean;
+}) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduceMotion(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    if (!animate || reduceMotion) return;
+
+    const interval = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % steps.length);
+    }, STEP_CYCLE_MS);
+
+    return () => window.clearInterval(interval);
+  }, [animate, reduceMotion, steps.length]);
+
+  const progress =
+    steps.length > 1 ? activeIndex / (steps.length - 1) : 0;
+
   return (
-    <ol className="grid grid-cols-3 gap-2.5">
-      {steps.map((step, index) => (
-        <li
-          key={step}
-          className="flex flex-col items-center gap-2 rounded-xl border border-slate-200/70 bg-white/80 px-2 py-3 text-center dark:border-white/8 dark:bg-white/[0.04]"
-        >
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-purple-100 text-[12px] font-bold text-purple-700 dark:bg-purple-500/15 dark:text-purple-300">
-            {index + 1}
-          </span>
-          <span className="text-[11px] font-semibold leading-snug text-slate-700 dark:text-slate-200">
-            {step}
-          </span>
-        </li>
-      ))}
-    </ol>
+    <div
+      className="live-restaurant-steps-stage relative"
+      style={{ "--step-progress": progress } as React.CSSProperties}
+    >
+      <div className="live-restaurant-steps-connector" aria-hidden>
+        <div className="live-restaurant-steps-connector-track" />
+        <div className="live-restaurant-steps-connector-fill" />
+      </div>
+
+      <ol className="live-restaurant-mobile-steps relative z-[1] grid grid-cols-3 gap-3">
+        {steps.map((step, index) => {
+          const isActive = index === activeIndex;
+
+          return (
+            <li
+              key={step}
+              className={cn(
+                "live-restaurant-step flex flex-col items-center gap-1.5 rounded-xl px-1.5 py-2.5 text-center",
+                isActive
+                  ? "live-restaurant-step--active"
+                  : "live-restaurant-step--idle",
+              )}
+            >
+              <span
+                className={cn(
+                  "live-restaurant-step-num flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold",
+                  isActive
+                    ? "live-restaurant-step-num--active"
+                    : "live-restaurant-step-num--idle",
+                )}
+              >
+                {index + 1}
+              </span>
+              <span
+                className={cn(
+                  "live-restaurant-step-label text-[10px] leading-snug",
+                  isActive
+                    ? "live-restaurant-step-label--active"
+                    : "live-restaurant-step-label--idle",
+                )}
+              >
+                {step}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }
 
@@ -228,16 +327,17 @@ function MobileCompactFeature({
   return (
     <li
       className={cn(
-        "live-feature-card flex items-center gap-3 rounded-xl border border-slate-200/70 bg-white/90 px-3.5 py-3",
-        "dark:border-white/10 dark:bg-white/[0.05]",
+        "live-feature-card live-restaurant-mobile-feature flex items-center gap-3 rounded-xl border border-purple-100/30 bg-white/70 px-3 py-2.5",
+        "shadow-[0_2px_16px_-12px_rgba(124,58,237,0.1)] backdrop-blur-sm transition-[transform,box-shadow,background-color] duration-200",
+        "active:scale-[0.99] active:bg-purple-50/40 dark:border-purple-500/10 dark:bg-white/[0.04] dark:active:bg-purple-500/8",
         visible && "live-feature-card--visible",
       )}
       style={{ transitionDelay: `${index * 70 + 120}ms` }}
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-purple-100/90 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400">
-        <Icon size={17} strokeWidth={2} />
-      </span>
-      <p className="min-w-0 flex-1 text-start text-[13px] font-semibold leading-snug text-slate-800 dark:text-white">
+      <LiveIconBox size="sm">
+        <Icon size={ICON_SIZE_SM} strokeWidth={ICON_STROKE} />
+      </LiveIconBox>
+      <p className="min-w-0 flex-1 text-start text-[12px] font-medium leading-snug text-slate-700 dark:text-slate-200">
         {feature.title}
       </p>
     </li>
@@ -261,26 +361,20 @@ function FeatureCard({
   return (
     <div
       className={cn(
-        "live-feature-card flex gap-3.5 rounded-2xl border backdrop-blur-sm",
-        "border-slate-200/70 bg-white/90 shadow-[0_6px_24px_-14px_rgba(15,23,42,0.14)]",
-        "dark:border-white/10 dark:bg-white/[0.06] dark:shadow-[0_6px_28px_-14px_rgba(0,0,0,0.45)]",
-        isMobile ? "live-feature-card--slide p-4" : "w-auto shrink-0 gap-3.5 p-3.5",
+        "live-feature-card flex gap-3.5",
+        CARD_SURFACE,
+        isMobile ? "live-feature-card--slide p-4" : "w-auto shrink-0 gap-3 p-3.5",
         visible && "live-feature-card--visible",
       )}
       style={{ transitionDelay: `${index * 70}ms` }}
     >
-      <span
-        className={cn(
-          "flex shrink-0 items-center justify-center rounded-xl bg-purple-100/90 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400",
-          isMobile ? "h-11 w-11" : "h-9 w-9",
-        )}
-      >
-        <Icon size={isMobile ? 20 : 17} strokeWidth={2} />
-      </span>
+      <LiveIconBox size={isMobile ? "md" : "sm"}>
+        <Icon size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+      </LiveIconBox>
       <div className="min-w-0 flex-1 text-start">
         <p
           className={cn(
-            "font-semibold text-slate-800 dark:text-white",
+            "font-medium text-slate-800 dark:text-white",
             isMobile ? "text-[15px]" : "text-[14px]",
           )}
         >
@@ -318,9 +412,9 @@ function OrderStatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border font-semibold",
+        "inline-flex items-center rounded-full font-medium tracking-wide",
         ORDER_STATUS_TONE[status],
-        compact ? "px-1.5 py-0.5 text-[8px]" : "px-2 py-0.5 text-[10px]",
+        compact ? "px-1.5 py-px text-[7.5px]" : "px-2 py-0.5 text-[9px]",
       )}
     >
       {label}
@@ -352,7 +446,7 @@ function OpsHighlightsPanel({
   return (
     <div
       className={cn(
-        "rounded-xl border border-slate-200/60 bg-slate-50/80 dark:border-white/8 dark:bg-white/[0.03]",
+        "rounded-xl border border-purple-100/30 bg-slate-50/50 backdrop-blur-sm dark:border-purple-500/10 dark:bg-white/[0.03]",
         compact ? "p-3" : "p-4",
       )}
     >
@@ -374,18 +468,16 @@ function OpsHighlightsPanel({
               className={cn(
                 "flex gap-2 text-start",
                 compact
-                  ? "rounded-lg border border-slate-200/50 bg-white px-2.5 py-2 dark:border-white/6 dark:bg-white/[0.02]"
-                  : "rounded-xl border border-slate-200/60 bg-white px-3.5 py-3 dark:border-white/8 dark:bg-white/[0.04]",
+                  ? "rounded-lg border border-purple-100/25 bg-white/80 px-2.5 py-2 dark:border-purple-500/8 dark:bg-white/[0.02]"
+                  : "rounded-xl border border-purple-100/30 bg-white/80 px-3.5 py-3 dark:border-purple-500/10 dark:bg-white/[0.04]",
               )}
             >
-              <span
-                className={cn(
-                  "flex shrink-0 items-center justify-center rounded-lg bg-purple-100/90 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400",
-                  compact ? "h-6 w-6" : "h-8 w-8",
-                )}
-              >
-                <Icon size={compact ? 12 : 14} strokeWidth={2} />
-              </span>
+              <LiveIconBox size={compact ? "sm" : "md"}>
+                <Icon
+                  size={compact ? ICON_SIZE_SM : ICON_SIZE}
+                  strokeWidth={ICON_STROKE}
+                />
+              </LiveIconBox>
               <div className="min-w-0 flex-1">
                 <p
                   className={cn(
@@ -412,47 +504,6 @@ function OpsHighlightsPanel({
   );
 }
 
-function FloatingAlert({
-  alert,
-  className,
-  delay,
-  mobile,
-}: {
-  alert: LiveAlert;
-  className?: string;
-  delay: string;
-  mobile?: boolean;
-}) {
-  return (
-    <div
-      className={cn(
-        "live-floating-alert rounded-2xl border backdrop-blur-md",
-        ALERT_TONE[alert.tone],
-        mobile ? "px-4 py-3.5" : "pointer-events-none px-3 py-2.5",
-        className,
-      )}
-      style={{ animationDelay: delay }}
-    >
-      <p
-        className={cn(
-          "font-semibold text-slate-800 dark:text-white",
-          mobile ? "text-[14px]" : "text-[11px]",
-        )}
-      >
-        {alert.title}
-      </p>
-      <p
-        className={cn(
-          "mt-1 text-slate-500 dark:text-slate-300",
-          mobile ? "text-[13px] leading-snug" : "mt-0.5 text-[10px]",
-        )}
-      >
-        {alert.subtitle}
-      </p>
-    </div>
-  );
-}
-
 function MobileSurface({
   children,
   className,
@@ -463,13 +514,32 @@ function MobileSurface({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-slate-200/70 bg-white/95 p-4",
-        "shadow-[0_8px_32px_-16px_rgba(15,23,42,0.14)]",
-        "dark:border-white/10 dark:bg-[#12151f]/95 dark:shadow-[0_12px_40px_-18px_rgba(124,58,237,0.2)]",
+        "rounded-xl border border-purple-100/35 bg-white/85 p-4 backdrop-blur-md",
+        "shadow-[0_6px_28px_-14px_rgba(124,58,237,0.1)]",
+        "dark:border-purple-500/12 dark:bg-[#12151f]/90 dark:shadow-[0_10px_36px_-16px_rgba(124,58,237,0.15)]",
         className,
       )}
     >
       {children}
+    </div>
+  );
+}
+
+function LiveRestaurantPhoneFrame({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="live-restaurant-phone-stage">
+      <div className="live-restaurant-phone">
+        <div className="live-restaurant-phone-bezel">
+          <div aria-hidden className="live-restaurant-phone-island-row">
+            <span className="live-restaurant-phone-island" />
+          </div>
+          <div className="live-restaurant-phone-screen">{children}</div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -488,52 +558,54 @@ function MobileOrderMockup({
   visible: boolean;
 }) {
   return (
-    <MobileSurface className="!p-0 overflow-hidden">
-      <div className="flex items-center justify-between gap-2 border-b border-slate-200/60 bg-slate-50/60 px-3.5 py-2.5 dark:border-white/8 dark:bg-white/[0.03]">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-100/90 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400">
-            <FiSmartphone size={15} strokeWidth={2} />
-          </span>
-          <p className="truncate text-start text-[13px] font-semibold text-slate-800 dark:text-white">
+    <LiveRestaurantPhoneFrame>
+      <div className="live-restaurant-phone-order flex h-full min-h-0 flex-col">
+        <div className="live-restaurant-phone-order-header shrink-0">
+          <p className="live-restaurant-phone-order-title truncate text-start font-semibold text-slate-800 dark:text-white">
             {labels.badge}
           </p>
+          <LiveMintBadge className="live-restaurant-live-badge--pulse live-restaurant-phone-live-badge shrink-0">
+            {liveLabel}
+          </LiveMintBadge>
         </div>
-        <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-200/80 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-400">
-          <span className="live-restaurant-live-dot h-1.5 w-1.5 rounded-full bg-emerald-500" />
-          {liveLabel}
-        </span>
+
+        <div
+          className={cn(
+            "live-restaurant-phone-order-body min-h-0 flex-1 text-start",
+            visible && "live-order-row--visible",
+          )}
+        >
+          <div className="live-restaurant-phone-order-glow">
+            <div className="live-restaurant-phone-order-block live-restaurant-phone-order-block--table">
+              <p className="live-restaurant-phone-order-label">
+                {labels.tableLabel}
+              </p>
+              <p className="live-restaurant-phone-order-table-num tabular-nums">
+                {labels.tableNumber}
+              </p>
+            </div>
+
+            <div className="live-restaurant-phone-order-block live-restaurant-phone-order-block--items">
+              <p className="live-restaurant-phone-order-label">
+                {labels.itemsLabel}
+              </p>
+              <p className="live-restaurant-phone-order-items line-clamp-2">
+                {order.items}
+              </p>
+            </div>
+
+            <div className="live-restaurant-phone-order-footer">
+              <p className="live-restaurant-phone-order-time">{order.time}</p>
+              <OrderStatusBadge
+                status={order.status}
+                labels={statusLabels}
+                compact
+              />
+            </div>
+          </div>
+        </div>
       </div>
-
-      <div
-        className={cn(
-          "space-y-3 px-3.5 py-3.5 text-start",
-          visible && "live-order-row--visible",
-        )}
-      >
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-            {labels.tableLabel}
-          </p>
-          <p className="text-[13px] font-bold text-purple-600 dark:text-purple-400">
-            {labels.tableNumber}
-          </p>
-        </div>
-
-        <div>
-          <p className="mb-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
-            {labels.itemsLabel}
-          </p>
-          <p className="text-[13px] leading-snug text-slate-700 dark:text-slate-200">
-            {order.items}
-          </p>
-        </div>
-
-        <div className="flex items-center justify-between gap-2 border-t border-slate-200/60 pt-3 dark:border-white/8">
-          <p className="text-[11px] text-slate-400">{order.time}</p>
-          <OrderStatusBadge status={order.status} labels={statusLabels} />
-        </div>
-      </div>
-    </MobileSurface>
+    </LiveRestaurantPhoneFrame>
   );
 }
 
@@ -553,20 +625,24 @@ function MobileShowcase({
   const primaryOrder = orders[0];
 
   return (
-    <div className="live-restaurant-mobile flex flex-col gap-7 pb-2">
-      <MobileStepFlow steps={mobileSteps} />
+    <div className="live-restaurant-mobile flex flex-col pb-1">
+      <div className="mb-9 sm:mb-10">
+        <MobileStepFlow steps={mobileSteps} animate={visible} />
+      </div>
 
       {primaryOrder ? (
-        <MobileOrderMockup
-          labels={mockOrderLabels}
-          order={primaryOrder}
-          statusLabels={statusLabels}
-          liveLabel={liveLabel}
-          visible={visible}
-        />
+        <div className="mb-10 flex justify-center">
+          <MobileOrderMockup
+            labels={mockOrderLabels}
+            order={primaryOrder}
+            statusLabels={statusLabels}
+            liveLabel={liveLabel}
+            visible={visible}
+          />
+        </div>
       ) : null}
 
-      <ul className="grid gap-2.5">
+      <ul className="live-restaurant-mobile-features grid gap-3 border-t border-purple-100/30 pt-7 dark:border-purple-500/10">
         {mobileFeatures.map((feature, index) => (
           <MobileCompactFeature
             key={feature.id}
@@ -595,7 +671,6 @@ function DesktopShowcase({
     statusLabels,
     products,
     orders,
-    alerts,
   } = props;
 
   return (
@@ -614,44 +689,22 @@ function DesktopShowcase({
 
       <div className="live-dashboard-shell relative min-w-0 flex-1">
         <div
-          aria-hidden
-          className="live-dashboard-glow pointer-events-none absolute -inset-4 rounded-[1.75rem] opacity-60 dark:opacity-100"
-        />
-
-        <FloatingAlert
-          alert={alerts[0]}
-          delay="0.2s"
-          className="absolute -bottom-3 z-20 max-w-[11.5rem] lg:-start-4 lg:bottom-6"
-        />
-        <FloatingAlert
-          alert={alerts[1]}
-          delay="0.6s"
-          className="absolute -bottom-2 end-0 z-20 max-w-[11.5rem] lg:-end-6 lg:bottom-10"
-        />
-        <FloatingAlert
-          alert={alerts[2]}
-          delay="1s"
-          className="absolute top-[38%] z-20 max-w-[12rem] lg:-end-8"
-        />
-
-        <div
           className={cn(
-            "live-dashboard relative overflow-hidden rounded-[1.35rem] border",
-            "border-slate-200/70 bg-white/95 shadow-[0_8px_40px_-20px_rgba(15,23,42,0.12)]",
-            "dark:border-white/10 dark:bg-[#0f1219]/95 dark:shadow-[0_12px_48px_-20px_rgba(124,58,237,0.18)]",
+            "live-dashboard relative overflow-hidden rounded-xl border",
+            "border-purple-100/35 bg-white/90 shadow-[0_8px_36px_-18px_rgba(124,58,237,0.1)] backdrop-blur-sm",
+            "dark:border-purple-500/12 dark:bg-[#0f1219]/95 dark:shadow-[0_12px_44px_-18px_rgba(124,58,237,0.14)]",
           )}
         >
-          <div className="flex items-center justify-between gap-3 border-b border-slate-200/70 px-5 py-3 dark:border-white/8">
+          <div className="flex items-center justify-between gap-3 border-b border-purple-100/30 bg-gradient-to-b from-purple-50/30 to-transparent px-5 py-3 dark:border-purple-500/10 dark:from-purple-500/5">
             <p className="min-w-0 truncate text-start text-sm font-semibold text-slate-800 dark:text-white">
               {restaurantName}
             </p>
             <div className="flex shrink-0 items-center gap-2">
-              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200/80 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-400">
-                <span className="live-restaurant-live-dot h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <LiveMintBadge className="px-2.5 py-0.5 text-[10px]">
                 {liveLabel}
-              </span>
-              <span className="relative flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200/80 bg-slate-50 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
-                <FiBell size={14} />
+              </LiveMintBadge>
+              <span className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-purple-50 to-violet-50/70 text-purple-600 ring-1 ring-purple-100/50 dark:from-purple-500/12 dark:to-violet-500/8 dark:text-purple-400 dark:ring-purple-500/12">
+                <FiBell size={ICON_SIZE_SM} strokeWidth={ICON_STROKE} />
                 <span className="absolute -top-0.5 -end-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-red-500 px-0.5 text-[8px] font-bold text-white">
                   3
                 </span>
@@ -660,8 +713,8 @@ function DesktopShowcase({
           </div>
 
           <div className="grid grid-cols-3 gap-3 p-4">
-            <div className="rounded-xl border border-slate-200/60 bg-slate-50/80 p-3 dark:border-white/8 dark:bg-white/[0.03]">
-              <p className="mb-2.5 text-start text-[11px] font-semibold text-slate-700 dark:text-slate-200">
+            <div className="rounded-xl border border-purple-100/30 bg-slate-50/40 p-3 backdrop-blur-sm dark:border-purple-500/10 dark:bg-white/[0.03]">
+              <p className="mb-2.5 text-start text-[11px] font-medium text-slate-600 dark:text-slate-300">
                 {liveOrdersTitle}
               </p>
               <ul className="space-y-2">
@@ -669,7 +722,7 @@ function DesktopShowcase({
                   <li
                     key={order.id}
                     className={cn(
-                      "live-order-row rounded-lg border border-slate-200/50 bg-white px-2.5 py-2 text-start dark:border-white/6 dark:bg-white/[0.02]",
+                      "live-order-row rounded-lg border border-purple-100/25 bg-white/90 px-2.5 py-2 text-start shadow-[0_2px_12px_-10px_rgba(124,58,237,0.08)] dark:border-purple-500/8 dark:bg-white/[0.02]",
                       visible && "live-order-row--visible",
                     )}
                     style={{ transitionDelay: `${i * 120 + 200}ms` }}
@@ -700,8 +753,8 @@ function DesktopShowcase({
               compact
             />
 
-            <div className="rounded-xl border border-slate-200/60 bg-slate-50/80 p-3 dark:border-white/8 dark:bg-white/[0.03]">
-              <p className="mb-2.5 text-start text-[11px] font-semibold text-slate-700 dark:text-slate-200">
+            <div className="rounded-xl border border-purple-100/30 bg-slate-50/40 p-3 backdrop-blur-sm dark:border-purple-500/10 dark:bg-white/[0.03]">
+              <p className="mb-2.5 text-start text-[11px] font-medium text-slate-600 dark:text-slate-300">
                 {popularTitle}
               </p>
               <ul className="space-y-2">
@@ -785,7 +838,7 @@ export default function LiveRestaurantShowcase(props: LiveRestaurantShowcaseProp
         <DesktopShowcase visible={visible} {...slice} />
       </div>
 
-      <p className="live-social-proof mx-auto mt-7 max-w-xl px-1 text-center text-[12px] font-medium leading-relaxed text-slate-500 lg:mt-10 lg:text-[13px] dark:text-slate-400">
+      <p className="live-social-proof mx-auto mt-10 max-w-xl px-1 text-center text-[12px] font-medium leading-relaxed text-slate-500 lg:mt-10 lg:text-[13px] dark:text-slate-400">
         {trustTagline}
       </p>
     </div>

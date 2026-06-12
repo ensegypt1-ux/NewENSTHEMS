@@ -97,6 +97,9 @@ export default async function TransformShowcaseSection({
             newOrderLabel={t("visual.newOrder")}
             scanToOrderLabel={t("visual.scanToOrder")}
             notificationLabel={t("visual.notification")}
+            tableLabel={t("visual.tableLabel")}
+            statusNewLabel={t("visual.statusNew")}
+            orderItemsLabel={t("visual.orderItemsLabel")}
           />
         </div>
 
