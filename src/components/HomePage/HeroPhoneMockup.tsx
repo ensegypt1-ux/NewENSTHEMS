@@ -25,6 +25,8 @@ export type HeroChatTurn = {
 type HeroPhoneMockupProps = {
   businessName: string;
   turns: HeroChatTurn[];
+  /** Shorter card for mobile hero — same demo, smaller footprint */
+  compact?: boolean;
 };
 
 type QtyState = Record<string, number>;
@@ -319,6 +321,7 @@ function LinaBubble({
 export default function HeroPhoneMockup({
   businessName,
   turns,
+  compact = false,
 }: HeroPhoneMockupProps) {
   const t = useTranslations("heroSection");
   const locale = useLocale();
@@ -390,21 +393,12 @@ export default function HeroPhoneMockup({
   }, [phase, turnIndex, turns.length, reduceMotion, loopId]);
 
   useEffect(() => {
-    const node = chatEndRef.current;
-    if (!node) return;
-
     const scrollParent = chatScrollRef.current;
-    if (scrollParent) {
-      scrollParent.scrollTo({
-        top: scrollParent.scrollHeight,
-        behavior: reduceMotion ? "auto" : "smooth",
-      });
-      return;
-    }
+    if (!scrollParent) return;
 
-    node.scrollIntoView({
+    scrollParent.scrollTo({
+      top: scrollParent.scrollHeight,
       behavior: reduceMotion ? "auto" : "smooth",
-      block: "end",
     });
   }, [turnIndex, phase, loopId, reduceMotion]);
 
@@ -420,14 +414,26 @@ export default function HeroPhoneMockup({
   }, [turns, addedTurns, quantities]);
 
   return (
-    <div className="relative mx-auto h-[440px] w-[320px] shrink-0 sm:h-[480px] sm:w-[350px]">
+    <div
+      className={cn(
+        "hero-lina-chat-mockup relative mx-auto w-full shrink-0 overflow-visible",
+        compact
+          ? "h-[min(360px,72vw)] max-w-[280px] sm:h-[400px] sm:max-w-[300px] lg:h-[560px] lg:max-w-[400px]"
+          : "h-[440px] max-w-[320px] sm:h-[480px] sm:max-w-[350px]",
+      )}
+    >
       <div
         aria-hidden
-        className="pointer-events-none absolute -inset-5 -z-10 rounded-3xl bg-gradient-to-b from-purple-400/[0.08] via-purple-400/[0.02] to-transparent blur-xl"
+        className="pointer-events-none absolute -inset-3 -z-10 rounded-3xl bg-gradient-to-b from-purple-400/[0.08] via-purple-400/[0.02] to-transparent blur-xl sm:-inset-4 lg:-inset-5"
       />
 
       <div className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-slate-200/60 bg-[#fafaf9] shadow-[0_1px_2px_rgba(15,23,42,0.03),0_16px_40px_-14px_rgba(15,23,42,0.1)] dark:border-slate-800/70 dark:bg-[#0f1115]">
-        <header className="h-[72px] shrink-0 border-b border-purple-100/50 bg-gradient-to-b from-purple-50/40 to-white/80 px-3.5 py-2.5 dark:border-purple-500/10 dark:from-purple-500/5 dark:to-slate-900/40">
+        <header
+          className={cn(
+            "shrink-0 border-b border-purple-100/50 bg-gradient-to-b from-purple-50/40 to-white/80 px-3 py-2 dark:border-purple-500/10 dark:from-purple-500/5 dark:to-slate-900/40 sm:px-3.5 sm:py-2.5",
+            compact ? "h-[60px] sm:h-[68px] lg:h-[76px]" : "h-[72px]",
+          )}
+        >
           <div className="flex h-full items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3 text-start">
               <div className="relative">
@@ -511,7 +517,12 @@ export default function HeroPhoneMockup({
           <div ref={chatEndRef} aria-hidden className="h-px shrink-0" />
         </div>
 
-        <footer className="h-[52px] shrink-0 border-t border-slate-200/40 px-3 py-2 dark:border-slate-800/50">
+        <footer
+          className={cn(
+            "shrink-0 border-t border-slate-200/40 px-3 py-2 dark:border-slate-800/50",
+            compact ? "h-[44px] sm:h-[48px] lg:h-[52px]" : "h-[52px]",
+          )}
+        >
           <div
             aria-hidden
             className="flex h-full items-center gap-2 rounded-lg bg-slate-100/60 px-2.5 py-1.5 dark:bg-slate-900/40"

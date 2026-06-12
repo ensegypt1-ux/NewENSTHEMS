@@ -10,7 +10,7 @@ export default async function HomeCTASection({ locale }: HomeCTASectionProps) {
 
   return (
     <section id="home-cta" className="home-cta-section relative overflow-x-clip">
-      <div className="home-section-shell relative z-[1] py-16 sm:py-20 lg:py-24 xl:py-28">
+      <div className="home-section-shell relative z-[1] py-12 sm:py-16 lg:py-24 xl:py-28">
         <HomeCTAShowcase
           title={t("preFooter.title")}
           description={t("preFooter.description")}

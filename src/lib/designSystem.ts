@@ -15,19 +15,19 @@
 export const ds = {
   /** Section shells — pick one variant per section */
   section: {
-    base: "relative overflow-hidden",
-    hero: "hero-section isolate bg-white pt-28 pb-20 dark:bg-[#0d1117] lg:pt-32 lg:pb-28",
-    default: "bg-white py-14 dark:bg-[#0d1117] lg:py-16",
-    muted: "bg-slate-50/60 py-14 dark:bg-slate-900/20 lg:py-16",
+    base: "relative overflow-visible",
+    hero: "hero-section isolate bg-white pt-24 pb-10 sm:pt-28 sm:pb-12 dark:bg-[#0d1117] lg:pt-32 lg:pb-28",
+    default: "bg-white py-8 sm:py-10 dark:bg-[#0d1117] lg:py-16",
+    muted: "bg-slate-50/60 py-8 sm:py-10 dark:bg-slate-900/20 lg:py-16",
     footer:
       "site-footer relative border-t border-slate-200/40 bg-slate-50/50 text-slate-500 dark:border-slate-800/50 dark:bg-[#0a0a0c]/90 dark:text-slate-500",
   },
 
   /** Two-column section layout (copy + visual) */
   split: {
-    row: "flex flex-col items-center gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-10 xl:gap-16",
+    row: "flex flex-col items-center gap-10 sm:gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-10 xl:gap-16",
     content: "flow-stack w-full flex-1",
-    visual: "w-full shrink-0 lg:w-auto",
+    visual: "flex w-full shrink-0 items-center justify-center self-center overflow-visible lg:w-auto",
   },
 
   /** Typography scale */
@@ -73,7 +73,8 @@ export const ds = {
     shadow: "shadow-sm shadow-slate-200/40 dark:shadow-black/20",
     elevated:
       "shadow-xl shadow-slate-200/50 dark:border-slate-800 dark:shadow-black/30",
-    padding: "p-5 sm:p-6",
+    padding: "p-5 sm:p-6 lg:p-6",
+    paddingMobile: "p-4 sm:p-5 md:p-6",
   },
 
   /** Links */

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "react-toastify";
@@ -39,6 +39,24 @@ export default function MenuImportWizard() {
     useCompleteAiImportOnboarding(menuId);
 
   const [isPreparingImage, setIsPreparingImage] = useState(false);
+  const prevStepRef = useRef(state.step);
+  const savedScrollYRef = useRef(0);
+
+  useEffect(() => {
+    const syncScroll = () => {
+      savedScrollYRef.current = window.scrollY;
+    };
+    syncScroll();
+    window.addEventListener("scroll", syncScroll, { passive: true });
+    return () => window.removeEventListener("scroll", syncScroll);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (prevStepRef.current === state.step) return;
+    prevStepRef.current = state.step;
+    const y = savedScrollYRef.current;
+    window.scrollTo({ top: y, left: 0, behavior: "auto" });
+  }, [state.step]);
 
   useEffect(() => {
     if (!state.saveResult || !isOnboarding) return;
@@ -87,7 +105,7 @@ export default function MenuImportWizard() {
   }, [flow]);
 
   return (
-    <div className="space-y-8 pb-10 animate-fadeIn">
+    <div className="mobile-stack pb-8 sm:pb-10 animate-fadeIn">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
           <button
@@ -109,10 +127,10 @@ export default function MenuImportWizard() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm p-6 md:p-8">
+      <div className="mobile-card shadow-sm dark:bg-slate-800">
         <ImportStepper currentStep={state.step} />
 
-        <div className="mt-8">
+        <div className="mt-6 sm:mt-8">
           {state.step === "upload" && (
             <UploadStep
               file={state.file}

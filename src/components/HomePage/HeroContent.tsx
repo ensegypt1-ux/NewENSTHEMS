@@ -47,12 +47,12 @@ export default async function HeroContent({ locale }: HeroContentProps) {
     <MarketingSection
       id="hero"
       variant="hero"
-      className="relative !pb-12 lg:!pb-14"
+      className="relative !overflow-visible !pb-10 sm:!pb-12 lg:!pb-14"
     >
       <HeroBackground />
 
       <div className="container relative z-10">
-        <MarketingSplit>
+        <MarketingSplit className="gap-8 sm:gap-10 lg:gap-14">
           <MarketingSplitContent>
             <MarketingBadge className="mb-6">{t("badge")}</MarketingBadge>
 
@@ -82,10 +82,11 @@ export default async function HeroContent({ locale }: HeroContentProps) {
             <MarketingText variant="caption">{t("trustLine")}</MarketingText>
           </MarketingSplitContent>
 
-          <MarketingSplitVisual className="mx-auto hidden h-[440px] w-[320px] shrink-0 sm:h-[480px] sm:w-[350px] lg:mx-0 lg:block lg:max-w-[380px]">
+          <MarketingSplitVisual className="hero-lina-chat-visual mx-auto w-full max-w-[min(100%,280px)] sm:max-w-[300px] lg:mx-0 lg:max-w-[420px] lg:py-4">
             <HeroPhoneMockup
               businessName={t("businessName")}
               turns={chatTurns}
+              compact
             />
           </MarketingSplitVisual>
         </MarketingSplit>

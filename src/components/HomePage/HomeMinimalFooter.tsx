@@ -57,7 +57,7 @@ export default function HomeMinimalFooter() {
         </div>
 
         <div className="mx-auto mt-3 flex max-w-md flex-col items-center text-center sm:mt-6">
-          <div className="home-minimal-footer__brand hidden sm:block">
+          <div className="home-minimal-footer__brand">
             <Logo size="compact" variant="white" />
           </div>
 

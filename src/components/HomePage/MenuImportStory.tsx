@@ -1,6 +1,15 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   FiBell,
   FiCheck,
@@ -50,6 +59,38 @@ const HIGHLIGHT_ICONS = {
   rocket: FiZap,
 } as const;
 
+const MenuImportActiveStepContext = createContext(1);
+
+function useMenuImportActiveStep() {
+  return useContext(MenuImportActiveStepContext);
+}
+
+/** Prevent scroll jumps when step/progress layout updates (scroll anchoring). */
+function usePreserveScrollPosition(...deps: unknown[]) {
+  const scrollYRef = useRef(0);
+
+  useLayoutEffect(() => {
+    scrollYRef.current = window.scrollY;
+
+    const restore = () => {
+      const y = scrollYRef.current;
+      if (Math.abs(window.scrollY - y) > 1) {
+        window.scrollTo({ top: y, left: 0, behavior: "auto" });
+      }
+    };
+
+    restore();
+    const raf1 = requestAnimationFrame(restore);
+    const raf2 = requestAnimationFrame(() => requestAnimationFrame(restore));
+
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- explicit scroll-lock triggers
+  }, deps);
+}
+
 function QrSvg({ className }: { className?: string }) {
   return (
     <svg
@@ -76,23 +117,28 @@ function easeInOutCubic(t: number): number {
 }
 
 const SYNCED_PROGRESS_TARGET = 100;
-const SYNCED_PROGRESS_DURATION_MS = 2400;
-const MENU_IMPORT_STEP_INTERVAL_MS = 2800;
+const SYNCED_PROGRESS_DURATION_MS = 2600;
+const MENU_IMPORT_STEP_INTERVAL_MS = 3000;
 
 function useSyncedPercent(current: boolean, passed: boolean) {
-  const [value, setValue] = useState(0);
-  const [done, setDone] = useState(false);
+  const [value, setValue] = useState(passed ? SYNCED_PROGRESS_TARGET : 0);
+  const [display, setDisplay] = useState(passed ? SYNCED_PROGRESS_TARGET : 0);
+  const [done, setDone] = useState(passed);
 
   useEffect(() => {
     if (passed) {
       setValue(SYNCED_PROGRESS_TARGET);
+      setDisplay(SYNCED_PROGRESS_TARGET);
       setDone(true);
       return;
     }
 
     if (!current) {
-      setValue(0);
-      setDone(false);
+      if (!passed) {
+        setValue(0);
+        setDisplay(0);
+        setDone(false);
+      }
       return;
     }
 
@@ -104,6 +150,7 @@ function useSyncedPercent(current: boolean, passed: boolean) {
 
     if (reducedMotion) {
       setValue(SYNCED_PROGRESS_TARGET);
+      setDisplay(SYNCED_PROGRESS_TARGET);
       setDone(true);
       return;
     }
@@ -113,11 +160,17 @@ function useSyncedPercent(current: boolean, passed: boolean) {
 
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / SYNCED_PROGRESS_DURATION_MS);
-      setValue(easeInOutCubic(t) * SYNCED_PROGRESS_TARGET);
+      const next = easeInOutCubic(t) * SYNCED_PROGRESS_TARGET;
+      setValue(next);
+      setDisplay((prev) => {
+        const blended = prev + (next - prev) * 0.28;
+        return Math.min(SYNCED_PROGRESS_TARGET, blended);
+      });
       if (t < 1) {
         raf = requestAnimationFrame(tick);
       } else {
         setValue(SYNCED_PROGRESS_TARGET);
+        setDisplay(SYNCED_PROGRESS_TARGET);
         setDone(true);
       }
     };
@@ -128,9 +181,80 @@ function useSyncedPercent(current: boolean, passed: boolean) {
 
   return {
     value,
-    display: Math.min(SYNCED_PROGRESS_TARGET, Math.round(value)),
+    display: Math.min(SYNCED_PROGRESS_TARGET, Math.round(display)),
     complete: passed || done,
   };
+}
+
+function useSmoothTarget(target: number) {
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (reducedMotion) {
+      setValue(target);
+      return;
+    }
+
+    let raf = 0;
+
+    const tick = () => {
+      setValue((prev) => {
+        const diff = target - prev;
+        if (Math.abs(diff) < 0.25) return target;
+        return prev + diff * 0.14;
+      });
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target]);
+
+  return value;
+}
+
+function LoadingDots() {
+  return (
+    <span className="menu-import-loading-dots ms-1 inline-flex items-center gap-0.5" aria-hidden>
+      <span />
+      <span />
+      <span />
+    </span>
+  );
+}
+
+function AnimatedStatusLabel({
+  label,
+  complete,
+  active,
+  centered,
+}: {
+  label: string;
+  complete: boolean;
+  active: boolean;
+  centered?: boolean;
+}) {
+  return (
+    <p
+      className={cn(
+        "menu-import-status-label font-medium transition-colors duration-500",
+        centered
+          ? "mt-2 w-full text-center text-[10px] leading-snug sm:text-[11px]"
+          : "mt-1.5 truncate text-[10px] sm:text-[11px]",
+        complete
+          ? "menu-import-status-label--complete font-semibold text-emerald-600 dark:text-emerald-400"
+          : "text-purple-600 dark:text-purple-400",
+        active || complete ? "opacity-100" : "opacity-45",
+      )}
+    >
+      {label}
+      {active && !complete ? <LoadingDots /> : null}
+    </p>
+  );
 }
 
 function SyncedProgressBlock({
@@ -147,25 +271,27 @@ function SyncedProgressBlock({
   passed: boolean;
   label: string;
   completeLabel: string;
-  align?: "row" | "center";
+  align?: "row" | "center" | "stack";
   shimmer?: boolean;
   glow?: boolean;
   leadingIcon?: ReactNode;
 }) {
   const { value, display, complete } = useSyncedPercent(current, passed);
   const statusLabel = complete ? completeLabel : label;
+  const processing = current && !complete;
 
   const track = (
     <SyncedProgressTrack
       value={value}
-      shimmer={shimmer && !complete}
-      glow={glow && !complete}
+      shimmer={shimmer && processing}
+      glow={glow && processing}
+      active={processing}
       className={complete ? "opacity-100" : undefined}
     />
   );
 
   const percentOrCheck = complete ? (
-    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400">
+    <span className="menu-import-check-reveal flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400">
       <FiCheck size={11} strokeWidth={3} aria-hidden />
     </span>
   ) : (
@@ -174,41 +300,48 @@ function SyncedProgressBlock({
     </span>
   );
 
-  if (align === "center") {
+  if (align === "center" || align === "stack") {
     return (
-      <div className="w-full">
-        {track}
-        <p
-          className={cn(
-            "mt-2 text-center text-[10px] font-medium leading-snug transition-colors duration-500 sm:text-[11px]",
-            complete
-              ? "font-semibold text-emerald-600 dark:text-emerald-400"
-              : "text-purple-600 dark:text-purple-400",
-            current || passed ? "opacity-100" : "opacity-45",
-          )}
-        >
-          {statusLabel}
-        </p>
-        <div className="mt-1 flex justify-center">{percentOrCheck}</div>
+      <div className="flex w-full flex-col items-center gap-2">
+        {align === "stack" && leadingIcon ? (
+          <span
+            className={cn(
+              processing && "menu-import-icon-active",
+              complete && "menu-import-icon-complete",
+            )}
+          >
+            {leadingIcon}
+          </span>
+        ) : null}
+        <div className="w-full">{track}</div>
+        <AnimatedStatusLabel
+          label={statusLabel}
+          complete={complete}
+          active={processing}
+          centered
+        />
+        <div className="flex justify-center">{percentOrCheck}</div>
       </div>
     );
   }
 
   return (
     <div className="flex items-center gap-2">
-      {leadingIcon}
+      <span
+        className={cn(
+          processing && "menu-import-icon-active",
+          complete && "menu-import-icon-complete",
+        )}
+      >
+        {leadingIcon}
+      </span>
       <div className="min-w-0 flex-1">
         {track}
-        <p
-          className={cn(
-            "mt-1.5 truncate text-[10px] font-medium transition-colors duration-500 sm:text-[11px]",
-            complete
-              ? "font-semibold text-emerald-600 dark:text-emerald-400"
-              : "text-purple-600 dark:text-purple-400",
-          )}
-        >
-          {statusLabel}
-        </p>
+        <AnimatedStatusLabel
+          label={statusLabel}
+          complete={complete}
+          active={processing}
+        />
       </div>
       {percentOrCheck}
     </div>
@@ -219,17 +352,20 @@ function SyncedProgressTrack({
   value,
   shimmer = false,
   glow = false,
+  active = false,
   className,
 }: {
   value: number;
   shimmer?: boolean;
   glow?: boolean;
+  active?: boolean;
   className?: string;
 }) {
   return (
     <div
       className={cn(
-        "relative h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800",
+        "relative h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800",
+        active && "menu-import-progress-track--active",
         className,
       )}
     >
@@ -241,11 +377,18 @@ function SyncedProgressTrack({
       )}
       <div
         className={cn(
-          "relative h-full rounded-full bg-gradient-to-r from-purple-500 to-violet-500 rtl:bg-gradient-to-l",
+          "menu-import-progress-fill relative h-full rounded-full bg-gradient-to-r from-purple-500 via-violet-500 to-purple-400 rtl:bg-gradient-to-l",
           shimmer && value > 0 && "menu-import-progress-shimmer",
         )}
         style={{ width: `${value}%` }}
-      />
+      >
+        {shimmer && value > 0 && (
+          <span
+            aria-hidden
+            className="menu-import-progress-sheen pointer-events-none absolute inset-0 rounded-full"
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -308,20 +451,19 @@ function StepUploadVisual({
   items,
   label,
   completeLabel,
-  activeStep,
 }: {
   items: MenuImportItem[];
   label: string;
   completeLabel: string;
-  activeStep: number;
 }) {
+  const activeStep = useMenuImportActiveStep();
   const stepIndex = 0;
   const current = activeStep === stepIndex + 1;
   const passed = activeStep > stepIndex + 1;
 
   return (
-    <div className="flex w-full flex-col gap-3">
-      <div className="rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 dark:border-slate-700/50 dark:bg-slate-800/40">
+    <div className="flex w-full flex-col items-center gap-3">
+      <div className="w-full rounded-xl border border-slate-200/80 bg-slate-50/80 p-3 dark:border-slate-700/50 dark:bg-slate-800/40">
         <p className="mb-2 text-center text-[11px] font-bold tracking-widest text-slate-400">
           MENU
         </p>
@@ -344,8 +486,9 @@ function StepUploadVisual({
         passed={passed}
         label={label}
         completeLabel={completeLabel}
+        align="stack"
         leadingIcon={
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400">
+          <span className="menu-import-step-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400">
             <FiUpload size={14} strokeWidth={2.5} />
           </span>
         }
@@ -357,12 +500,11 @@ function StepUploadVisual({
 function StepAiVisual({
   label,
   completeLabel,
-  activeStep,
 }: {
   label: string;
   completeLabel: string;
-  activeStep: number;
 }) {
+  const activeStep = useMenuImportActiveStep();
   const stepIndex = 1;
   const current = activeStep === stepIndex + 1;
   const passed = activeStep > stepIndex + 1;
@@ -370,36 +512,36 @@ function StepAiVisual({
 
   return (
     <div className="flex w-full flex-col items-center gap-3.5">
-      <div className="relative flex h-[4.75rem] w-[4.75rem] items-center justify-center">
+      <div className="menu-import-ai-stage relative mx-auto flex h-[4.75rem] w-[4.75rem] items-center justify-center">
         {active && (
           <>
             <span
               aria-hidden
-              className="menu-import-ai-ring absolute inset-0 rounded-2xl border border-purple-300/35"
+              className="menu-import-ai-ring pointer-events-none absolute inset-0 rounded-2xl border border-purple-300/35"
             />
             <span
               aria-hidden
-              className="menu-import-ai-orbit absolute inset-[-4px] rounded-[1.15rem] border border-purple-300/20"
+              className="menu-import-ai-orbit pointer-events-none absolute inset-[-4px] rounded-[1.15rem] border border-purple-300/20"
             />
           </>
         )}
         <HiOutlineSparkles
           className={cn(
-            "absolute -start-4 -top-1 text-purple-400/70",
+            "pointer-events-none absolute -start-3 -top-1 text-purple-400/70",
             active && "menu-import-sparkle",
           )}
           size={15}
         />
         <HiOutlineSparkles
           className={cn(
-            "absolute -end-3.5 top-0 text-violet-300/80",
+            "pointer-events-none absolute -end-3 top-0 text-violet-300/80",
             active && "menu-import-sparkle menu-import-sparkle--delay",
           )}
           size={12}
         />
         <HiOutlineSparkles
           className={cn(
-            "absolute -bottom-1 start-1 text-purple-300/60",
+            "pointer-events-none absolute -bottom-1 start-1/2 -translate-x-1/2 text-purple-300/60",
             active && "menu-import-sparkle menu-import-sparkle--delay-2",
           )}
           size={11}
@@ -408,6 +550,7 @@ function StepAiVisual({
           className={cn(
             "relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-purple-200/90 bg-gradient-to-br from-purple-50 to-violet-50 text-purple-600 dark:border-purple-500/30 dark:from-purple-500/15 dark:to-violet-500/10 dark:text-purple-300",
             active && "menu-import-step-glow",
+            current && "menu-import-ai-core--active",
           )}
         >
           {active && (
@@ -446,20 +589,19 @@ function StepPhotosVisual({
   items,
   label,
   completeLabel,
-  activeStep,
 }: {
   items: MenuImportItem[];
   label: string;
   completeLabel: string;
-  activeStep: number;
 }) {
+  const activeStep = useMenuImportActiveStep();
   const stepIndex = 2;
   const current = activeStep === stepIndex + 1;
   const passed = activeStep > stepIndex + 1;
   const active = activeStep >= stepIndex + 1;
 
   return (
-    <div className="flex w-full flex-col gap-3">
+    <div className="flex w-full flex-col items-center gap-3">
       <ul className="w-full space-y-2.5">
         {items.map((item, i) => (
           <li
@@ -496,8 +638,9 @@ function StepPhotosVisual({
         passed={passed}
         label={label}
         completeLabel={completeLabel}
+        align="stack"
         leadingIcon={
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400">
+          <span className="menu-import-step-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400">
             <FiImage size={14} strokeWidth={2.5} />
           </span>
         }
@@ -527,13 +670,10 @@ function StepQrVisual({ downloadLabel }: { downloadLabel: string }) {
   );
 }
 
-function StepScanVisual({
-  scanToOrderLabel,
-  active,
-}: {
-  scanToOrderLabel: string;
-  active: boolean;
-}) {
+function StepScanVisual({ scanToOrderLabel }: { scanToOrderLabel: string }) {
+  const activeStep = useMenuImportActiveStep();
+  const active = activeStep >= 5;
+
   return (
     <div className="relative mx-auto w-full max-w-[180px]">
       <div
@@ -614,17 +754,18 @@ function StepLiveVisual({
   liveBadgeLabel,
   newOrderLabel,
   notificationLabel,
-  live,
 }: {
   liveBadgeLabel: string;
   newOrderLabel: string;
   notificationLabel: string;
-  live: boolean;
 }) {
+  const activeStep = useMenuImportActiveStep();
+  const live = activeStep >= 6;
+
   return (
     <div className="relative mx-auto w-full max-w-[190px]">
       {live && (
-        <span className="menu-import-live-badge absolute -top-1 end-0 z-20 inline-flex items-center gap-1 rounded-full border border-emerald-200/80 bg-emerald-50/95 px-2 py-0.5 text-[9px] font-semibold text-emerald-700 shadow-sm dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-400">
+        <span className="menu-import-live-badge absolute -top-1 left-1/2 z-20 inline-flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full border border-emerald-200/80 bg-emerald-50/95 px-2 py-0.5 text-[9px] font-semibold text-emerald-700 shadow-sm dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-400">
           <span className="menu-import-live-dot h-1.5 w-1.5 rounded-full bg-emerald-500" />
           {liveBadgeLabel}
         </span>
@@ -680,7 +821,7 @@ function StoryStep({
   active: boolean;
   current: boolean;
   isFinale: boolean;
-  layout: "timeline" | "grid";
+  layout: "timeline" | "grid" | "focus";
   stepRef?: (node: HTMLElement | null) => void;
   children: React.ReactNode;
 }) {
@@ -691,6 +832,8 @@ function StoryStep({
         "menu-import-step flex flex-col transition-[transform,opacity] duration-[680ms] ease-[cubic-bezier(0.4,0,0.2,1)]",
         layout === "timeline" &&
           "w-[var(--menu-import-step-w)] max-w-[var(--menu-import-step-w)] shrink-0 snap-center snap-always",
+        layout === "focus" &&
+          "mx-auto h-full w-full max-w-[18rem] items-center",
         layout === "grid" && "min-w-0",
         current && "menu-import-step--current z-[1]",
         layout === "grid" && current && "lg:scale-[1.012]",
@@ -699,7 +842,7 @@ function StoryStep({
       )}
       style={{ animationDelay: `${index * 70}ms` }}
     >
-      <div className="mb-3.5 flex flex-col items-center gap-2 text-center sm:mb-4">
+      <div className="mb-3.5 flex w-full flex-col items-center gap-2 text-center sm:mb-4">
         <span
           className={cn(
             "flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-bold transition-all duration-500",
@@ -713,7 +856,7 @@ function StoryStep({
         </span>
         <h3
           className={cn(
-            "text-[12px] font-semibold leading-snug sm:text-[13px]",
+            "w-full text-center text-[12px] font-semibold leading-snug sm:text-[13px]",
             active
               ? "text-slate-900 dark:text-white"
               : "text-slate-500 dark:text-slate-400",
@@ -726,7 +869,7 @@ function StoryStep({
 
       <div
         className={cn(
-          "menu-import-step-card flex min-h-[172px] flex-1 flex-col items-center justify-center rounded-2xl border bg-white p-3 sm:min-h-[186px] sm:p-3.5",
+          "menu-import-step-card flex w-full min-h-[172px] flex-1 flex-col items-center justify-center rounded-2xl border bg-white p-3 sm:min-h-[186px] sm:p-3.5",
           isFinale
             ? "border-purple-200/70 shadow-[0_10px_36px_-14px_rgba(124,58,237,0.28)] dark:border-purple-500/30"
             : "border-slate-200/60 shadow-[0_2px_12px_-6px_rgba(15,23,42,0.06)] dark:border-slate-700/45 dark:bg-slate-900/30",
@@ -740,7 +883,7 @@ function StoryStep({
 
       <p
         className={cn(
-          "mt-3 text-center text-[10px] leading-relaxed sm:text-[11px]",
+          "mx-auto mt-3 w-full max-w-[16.5rem] text-center text-[10px] leading-relaxed sm:text-[11px]",
           isFinale && active
             ? "font-medium text-slate-600 dark:text-slate-300"
             : "text-slate-500 dark:text-slate-400",
@@ -771,10 +914,13 @@ export default function MenuImportStory({
 }: MenuImportStoryProps) {
   const stepCount = steps.length;
   const rootRef = useRef<HTMLDivElement>(null);
-  const timelineRef = useRef<HTMLDivElement>(null);
-  const stepRefs = useRef<(HTMLElement | null)[]>([]);
   const [activeStep, setActiveStep] = useState(1);
   const [visible, setVisible] = useState(false);
+  const globalProgressTarget = (activeStep / stepCount) * 100;
+  const globalProgressWidth = useSmoothTarget(globalProgressTarget);
+  const isProcessingStep = activeStep >= 1 && activeStep <= 3;
+
+  usePreserveScrollPosition(activeStep, visible);
 
   useEffect(() => {
     const node = rootRef.current;
@@ -813,59 +959,57 @@ export default function MenuImportStory({
     return () => window.clearInterval(interval);
   }, [visible, stepCount]);
 
-  useEffect(() => {
-    if (!visible) return;
+  const stepVisuals = useMemo(
+    () =>
+      [
+        <StepUploadVisual
+          key="upload"
+          items={items}
+          label={uploadProgressLabel}
+          completeLabel={uploadCompleteLabel}
+        />,
+        <StepAiVisual
+          key="ai"
+          label={processingLabel}
+          completeLabel={processingCompleteLabel}
+        />,
+        <StepPhotosVisual
+          key="photos"
+          items={items}
+          label={extractProgressLabel}
+          completeLabel={extractCompleteLabel}
+        />,
+        <StepQrVisual key="qr" downloadLabel={qrDownloadLabel} />,
+        <StepScanVisual key="scan" scanToOrderLabel={scanToOrderLabel} />,
+        <StepLiveVisual
+          key="live"
+          liveBadgeLabel={liveBadgeLabel}
+          newOrderLabel={newOrderLabel}
+          notificationLabel={notificationLabel}
+        />,
+      ].slice(0, stepCount),
+    [
+      items,
+      uploadProgressLabel,
+      uploadCompleteLabel,
+      processingLabel,
+      processingCompleteLabel,
+      extractProgressLabel,
+      extractCompleteLabel,
+      qrDownloadLabel,
+      scanToOrderLabel,
+      liveBadgeLabel,
+      newOrderLabel,
+      notificationLabel,
+      stepCount,
+    ],
+  );
 
-    const stepNode = stepRefs.current[activeStep - 1];
-    if (!stepNode) return;
-
-    const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
-    if (isDesktop) return;
-
-    stepNode.scrollIntoView({
-      behavior: "smooth",
-      inline: "center",
-      block: "nearest",
-    });
-  }, [activeStep, visible]);
-
-  const stepVisuals = [
-    <StepUploadVisual
-      key="upload"
-      items={items}
-      label={uploadProgressLabel}
-      completeLabel={uploadCompleteLabel}
-      activeStep={activeStep}
-    />,
-    <StepAiVisual
-      key="ai"
-      label={processingLabel}
-      completeLabel={processingCompleteLabel}
-      activeStep={activeStep}
-    />,
-    <StepPhotosVisual
-      key="photos"
-      items={items}
-      label={extractProgressLabel}
-      completeLabel={extractCompleteLabel}
-      activeStep={activeStep}
-    />,
-    <StepQrVisual key="qr" downloadLabel={qrDownloadLabel} />,
-    <StepScanVisual
-      key="scan"
-      scanToOrderLabel={scanToOrderLabel}
-      active={activeStep >= 5}
-    />,
-    <StepLiveVisual
-      key="live"
-      liveBadgeLabel={liveBadgeLabel}
-      newOrderLabel={newOrderLabel}
-      notificationLabel={notificationLabel}
-      live={activeStep >= 6}
-    />,
-  ].slice(0, stepCount);
-
-  const renderStep = (step: MenuImportStep, index: number, layout: "timeline" | "grid") => (
+  const renderStep = (
+    step: MenuImportStep,
+    index: number,
+    layout: "focus" | "grid",
+  ) => (
     <StoryStep
       key={`${layout}-${step.title}`}
       step={step}
@@ -873,27 +1017,21 @@ export default function MenuImportStory({
       active={activeStep >= index + 1}
       current={activeStep === index + 1}
       isFinale={index === stepCount - 1}
-      layout={layout}
-      stepRef={
-        layout === "timeline"
-          ? (node) => {
-              stepRefs.current[index] = node;
-            }
-          : undefined
-      }
+      layout={layout === "focus" ? "focus" : "grid"}
     >
       {stepVisuals[index]}
     </StoryStep>
   );
 
   return (
+    <MenuImportActiveStepContext.Provider value={activeStep}>
     <div
       ref={rootRef}
       className={cn("w-full", visible && "menu-import-story-visible")}
     >
       <div
         className={cn(
-          "menu-import-story-panel relative rounded-[1.25rem] border border-slate-200/55 bg-white px-3 py-3.5 sm:rounded-[1.4rem] sm:px-6 sm:py-5 lg:overflow-hidden lg:px-7 lg:py-6",
+          "menu-import-story-panel relative rounded-[1.25rem] border border-slate-200/55 bg-white px-4 py-4 sm:rounded-[1.4rem] sm:px-6 sm:py-5 lg:overflow-hidden lg:px-7 lg:py-6",
           "shadow-[0_2px_20px_-6px_rgba(15,23,42,0.06),0_16px_48px_-20px_rgba(124,58,237,0.11)]",
           "dark:border-slate-800/60 dark:bg-[#0d1117]/95",
         )}
@@ -909,12 +1047,22 @@ export default function MenuImportStory({
 
         <div
           aria-hidden
-          className="mb-3 h-1 overflow-hidden rounded-full bg-slate-100 lg:mb-4 lg:h-px dark:bg-slate-800/80"
+          className="mb-3 h-1.5 overflow-hidden rounded-full bg-slate-100 lg:mb-4 lg:h-px dark:bg-slate-800/80"
         >
           <div
-            className="menu-import-global-progress h-full rounded-full bg-gradient-to-r from-purple-400/80 via-violet-500/90 to-purple-400/80 transition-[width] duration-[850ms] ease-[cubic-bezier(0.4,0,0.2,1)] rtl:bg-gradient-to-l lg:h-px"
-            style={{ width: `${(activeStep / stepCount) * 100}%` }}
-          />
+            className={cn(
+              "menu-import-global-progress relative h-full rounded-full bg-gradient-to-r from-purple-400/80 via-violet-500/90 to-purple-400/80 rtl:bg-gradient-to-l lg:h-px",
+              isProcessingStep && "menu-import-global-progress--active",
+            )}
+            style={{ width: `${globalProgressWidth}%` }}
+          >
+            {isProcessingStep && (
+              <span
+                aria-hidden
+                className="menu-import-progress-sheen pointer-events-none absolute inset-0 rounded-full"
+              />
+            )}
+          </div>
         </div>
 
         <div
@@ -936,26 +1084,26 @@ export default function MenuImportStory({
           ))}
         </div>
 
-        <div className="menu-import-mobile-timeline relative lg:hidden">
-          <div aria-hidden className="menu-import-timeline-fade menu-import-timeline-fade--start" />
-          <div aria-hidden className="menu-import-timeline-fade menu-import-timeline-fade--end" />
+        <div className="menu-import-mobile-focus relative mx-auto w-full lg:hidden">
+          <div className="menu-import-focus-stage relative mx-auto h-[302px] w-full max-w-[18rem] sm:h-[318px]">
+            {steps.map((step, index) => {
+              const isCurrent = activeStep === index + 1;
 
-          <div
-            ref={timelineRef}
-            className="menu-import-steps-timeline flex flex-nowrap items-stretch gap-0 overflow-x-auto overscroll-x-contain scroll-smooth px-1 pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {steps.map((step, index) => (
-              <Fragment key={`timeline-${step.title}`}>
-                {renderStep(step, index, "timeline")}
-                {index < steps.length - 1 && (
-                  <StepConnector
-                    variant="arrow"
-                    active={activeStep > index + 1}
-                    flowing={activeStep === index + 2}
-                  />
-                )}
-              </Fragment>
-            ))}
+              return (
+                <div
+                  key={`focus-${step.title}`}
+                  className={cn(
+                    "menu-import-focus-step absolute inset-0 flex justify-center transition-opacity duration-500 ease-out",
+                    isCurrent
+                      ? "z-[1] opacity-100"
+                      : "pointer-events-none z-0 opacity-0",
+                  )}
+                  aria-hidden={!isCurrent}
+                >
+                  {renderStep(step, index, "focus")}
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -986,5 +1134,6 @@ export default function MenuImportStory({
         </div>
       )}
     </div>
+    </MenuImportActiveStepContext.Provider>
   );
 }

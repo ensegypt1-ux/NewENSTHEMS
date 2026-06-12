@@ -1318,6 +1318,26 @@
     "titleAccent": "smarter and faster",
     "subtitle": "Every order, every guest, every moment — from dining room to lounge — managed from one honest dashboard.",
     "mobileSwipeHint": "Swipe",
+    "mobile": {
+      "title": "Live table orders from QR",
+      "subtitle": "Guests scan QR, order from the menu, and the kitchen receives it instantly.",
+      "steps": {
+        "1": "Scan QR",
+        "2": "Order from menu",
+        "3": "Receive in dashboard"
+      },
+      "features": {
+        "liveUpdates": "Live order updates",
+        "kitchenAlert": "Kitchen alerts",
+        "statusControl": "Order status control"
+      },
+      "mockOrder": {
+        "badge": "New order",
+        "tableLabel": "Table",
+        "tableNumber": "12",
+        "itemsLabel": "Items"
+      }
+    },
     "features": {
       "liveTracking": {
         "title": "Live order tracking",

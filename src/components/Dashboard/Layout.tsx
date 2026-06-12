@@ -38,7 +38,7 @@ export default function Layout({
             isAdmin={isAdmin}
             hideSidebar={hideSidebar}
           />
-          <div className="mx-auto mt-3 max-w-[1500px] px-4 pb-5 sm:mt-6 sm:px-6 sm:pb-8">
+          <div className="mx-auto mt-4 max-w-[1500px] px-4 pb-8 pt-1 sm:mt-6 sm:px-6 sm:pb-10">
             <DashboardContentSection>{children}</DashboardContentSection>
           </div>
         </main>

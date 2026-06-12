@@ -78,12 +78,30 @@ export default async function LiveRestaurantSection({
       id="live-restaurant"
       className="live-restaurant-section relative border-t border-slate-100 dark:border-slate-800/80"
     >
-      <div className="home-section-shell relative z-[1] py-10 sm:py-12 lg:py-20">
+      <div className="home-section-shell relative z-[1] py-8 pb-12 sm:py-12 sm:pb-12 lg:py-20">
         <LiveRestaurantShowcase
           badge={t("badge")}
           title={t("title")}
           titleAccent={t("titleAccent")}
           subtitle={t("subtitle")}
+          mobileTitle={t("mobile.title")}
+          mobileSubtitle={t("mobile.subtitle")}
+          mobileSteps={[
+            t("mobile.steps.1"),
+            t("mobile.steps.2"),
+            t("mobile.steps.3"),
+          ]}
+          mobileFeatures={[
+            { id: "liveUpdates", title: t("mobile.features.liveUpdates") },
+            { id: "kitchenAlert", title: t("mobile.features.kitchenAlert") },
+            { id: "statusControl", title: t("mobile.features.statusControl") },
+          ]}
+          mockOrderLabels={{
+            badge: t("mobile.mockOrder.badge"),
+            tableLabel: t("mobile.mockOrder.tableLabel"),
+            tableNumber: t("mobile.mockOrder.tableNumber"),
+            itemsLabel: t("mobile.mockOrder.itemsLabel"),
+          }}
           features={features}
           restaurantName={t("dashboard.restaurantName")}
           liveLabel={t("dashboard.live")}

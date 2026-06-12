@@ -46,7 +46,7 @@ export default async function TransformShowcaseSection({
     <MarketingSection
       id="transform"
       variant="default"
-      className="transform-section !pb-10 !pt-6 sm:!pb-14 sm:!pt-9 lg:!pb-[4.5rem] lg:!pt-11"
+      className="transform-section !overflow-visible"
     >
       <div className="home-section-shell">
         <header className="mx-auto mb-6 max-w-3xl text-center sm:mb-8">
@@ -79,7 +79,7 @@ export default async function TransformShowcaseSection({
           addLabel={t("visual.add")}
         />
 
-        <div className="mt-7 sm:mt-9">
+        <div className="mt-8 sm:mt-10">
           <h3 className="mb-3 text-center text-sm font-semibold tracking-wide text-slate-700 sm:mb-5 dark:text-slate-300">
             {t("flowTitle")}
           </h3>
@@ -100,7 +100,7 @@ export default async function TransformShowcaseSection({
           />
         </div>
 
-        <div className="mt-6 sm:mt-8">
+        <div className="mt-8 sm:mt-10">
           <MarketingTrustFeatures features={trustFeatures} variant="light" columns={3} />
         </div>
       </div>

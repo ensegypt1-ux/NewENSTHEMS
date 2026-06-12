@@ -38,7 +38,7 @@ export default function CtaPhoneMockup({
   return (
     <div
       className={cn(
-        "cta-phone-stage relative mx-auto hidden w-full max-w-[17.5rem] lg:block",
+        "cta-phone-stage relative mx-auto w-full max-w-[13.5rem] sm:max-w-[15rem] lg:max-w-[17.5rem]",
         className,
       )}
     >
@@ -51,7 +51,7 @@ export default function CtaPhoneMockup({
         className="cta-phone-ring pointer-events-none absolute inset-x-[8%] bottom-1 h-3 rounded-full border border-purple-400/50 bg-purple-500/10 shadow-[0_0_28px_6px_rgba(124,58,237,0.35)]"
       />
 
-      <div className="cta-qr-float absolute -end-6 top-[18%] z-20 hidden w-[5.25rem] rounded-xl border border-white/15 bg-[#0f1219]/95 p-2 shadow-[0_16px_40px_-12px_rgba(124,58,237,0.45)] backdrop-blur-md sm:block">
+      <div className="cta-qr-float absolute -end-3 top-[14%] z-20 hidden w-[4.5rem] rounded-xl border border-white/15 bg-[#0f1219]/95 p-1.5 shadow-[0_16px_40px_-12px_rgba(124,58,237,0.45)] backdrop-blur-md sm:-end-6 sm:top-[18%] sm:block sm:w-[5.25rem] sm:p-2">
         <p className="text-center text-[6px] font-bold tracking-wider text-purple-400">ENSMENU</p>
         <QrMini className="mx-auto mt-1 h-11 w-11 sm:h-12 sm:w-12" />
         <p className="mt-1 text-center text-[5.5px] font-medium text-slate-400">Powered by AI</p>

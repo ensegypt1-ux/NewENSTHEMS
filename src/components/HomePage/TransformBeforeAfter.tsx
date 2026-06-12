@@ -165,7 +165,7 @@ export default function TransformBeforeAfter({
   addLabel,
 }: TransformBeforeAfterProps) {
   return (
-    <div className="relative grid gap-4 sm:gap-5 lg:grid-cols-2 lg:items-stretch lg:gap-6">
+    <div className="relative grid gap-6 sm:gap-7 lg:grid-cols-2 lg:items-stretch lg:gap-8">
       <div
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-1/2 z-10 hidden h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-purple-100 bg-white text-purple-500 shadow-[0_4px_20px_-8px_rgba(124,58,237,0.2)] lg:flex dark:border-purple-500/20 dark:bg-[#0d1117]"
@@ -180,8 +180,8 @@ export default function TransformBeforeAfter({
             {beforeLabel}
           </span>
         </div>
-        <div className="flex flex-1 flex-col gap-4 p-5 sm:gap-5 sm:p-6">
-          <div className="flex min-h-[14.5rem] items-center justify-center sm:min-h-[16rem]">
+        <div className="flex flex-1 flex-col gap-4 p-4 sm:gap-5 sm:p-6">
+          <div className="flex items-center justify-center py-2 sm:min-h-[14.5rem] sm:py-0 lg:min-h-[16rem]">
             <PaperMenuVisual alt={paperMenuAlt} />
           </div>
           <PainPointList items={beforeItems} variant="before" />
@@ -198,8 +198,8 @@ export default function TransformBeforeAfter({
             {afterLabel}
           </span>
         </div>
-        <div className="flex flex-1 flex-col gap-4 overflow-visible p-5 sm:gap-5 sm:p-6">
-          <div className="hidden min-h-[16rem] items-center justify-center overflow-visible py-1 lg:flex">
+        <div className="flex flex-1 flex-col gap-4 overflow-visible p-4 sm:gap-5 sm:p-6">
+          <div className="flex items-center justify-center overflow-visible py-2 sm:min-h-[14rem] sm:py-1 lg:min-h-[16rem]">
             <SmartMenuVisual
               restaurantName={restaurantName}
               menuItems={menuItems}
