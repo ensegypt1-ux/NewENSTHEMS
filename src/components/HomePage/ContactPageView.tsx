@@ -379,7 +379,7 @@ export default function ContactPageView() {
   const location = contactInfo.find((info) => info.type === "location");
 
   return (
-    <div className="relative overflow-x-hidden bg-gradient-app pb-12 pt-24 text-slate-900 md:pt-28 dark:text-white">
+    <div className="contact-page relative overflow-x-hidden bg-gradient-app pb-12 pt-24 text-slate-900 md:pt-28 dark:text-white">
       <div className="pointer-events-none absolute inset-0">
         <div
           className="absolute -left-20 top-0 h-56 w-56 rounded-full bg-purple-500/10 blur-3xl dark:bg-purple-500/15"

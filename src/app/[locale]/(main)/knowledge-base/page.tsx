@@ -199,7 +199,7 @@ function KnowledgeBaseInner() {
   return (
     <div
     dir={isRTL ? "rtl" : "ltr"}
-    className="flex flex-col md:flex-row min-h-screen bg-slate-50 dark:bg-[#090e18] pt-[88px] md:pt-[100px]"
+    className="knowledge-base-page flex flex-col md:flex-row min-h-screen bg-slate-50 dark:bg-[#090e18] pt-[88px] md:pt-[100px]"
   >
     {/* ══════════════════════ SIDEBAR ══════════════════════ */}
     <aside

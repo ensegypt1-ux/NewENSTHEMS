@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -104,16 +104,16 @@ function yesNoIcon(
   );
   return value
     ? wrap(
-        "rounded-full bg-emerald-100/90 p-1 dark:bg-emerald-500/15",
+        "rounded-full bg-emerald-100/95 p-1 ring-1 ring-emerald-200/70 dark:bg-emerald-500/15 dark:ring-emerald-500/25",
         <HiCheck
-          className="pricing-check-pop h-3.5 w-3.5 text-emerald-600 sm:h-4 sm:w-4 dark:text-emerald-400"
+          className="pricing-check-pop h-3.5 w-3.5 text-emerald-700 sm:h-4 sm:w-4 dark:text-emerald-300"
           aria-hidden
         />,
       )
     : wrap(
-        "rounded-full bg-red-100 p-1 dark:bg-red-500/20",
+        "rounded-full bg-rose-50/90 p-1 ring-1 ring-rose-100/80 dark:bg-rose-500/10 dark:ring-rose-500/20",
         <HiX
-          className="h-3.5 w-3.5 text-red-600 sm:h-4 sm:w-4 dark:text-red-400"
+          className="h-3.5 w-3.5 text-rose-400 sm:h-4 sm:w-4 dark:text-rose-400/80"
           aria-hidden
         />,
       );
@@ -256,7 +256,7 @@ export default function PricingComparisonPage() {
   const tNo = t("no");
   const tBasic = t("cellBasic");
 
-  const rows: ComparisonRow[] = [
+  const baseRows: ComparisonRow[] = [
     {
       id: "rowBillingCycle",
       label: t("rowBillingCycle"),
@@ -412,6 +412,60 @@ export default function PricingComparisonPage() {
       custom: true,
     })),
   ];
+
+  const customFeatureIds = CUSTOM_TABLE_FEATURE_KEYS.map(
+    (key) => `customFeature.${key}`,
+  );
+
+  const orderedRowIds = [
+    // Core features
+    "rowBillingCycle",
+    "rowMenus",
+    "rowProducts",
+    "rowGuestMenu",
+    "rowSmartQr",
+    "rowDashboard",
+    "rowPhotoLibrary",
+    "rowHostingSecurity",
+    "rowPlatformUpdates",
+
+    // AI features
+    "rowAiMenuImport",
+    "rowAiSuggestions",
+    "rowAiWaiter",
+
+    // Live ordering & workflow
+    "rowTableOrderingQr",
+    "rowLiveNotifications",
+    "rowStaffNotifications",
+    "rowStaffTables",
+    "rowStaffMobileApp",
+    "rowMultiLanguage",
+
+    // Premium / business
+    "rowDesign",
+    "rowAds",
+    "rowSupport",
+
+    // Advanced custom-only add-ons
+    ...customFeatureIds,
+  ] as const;
+
+  const rowsById = new Map(baseRows.map((row) => [row.id, row] as const));
+  const rows = orderedRowIds
+    .map((id) => rowsById.get(id))
+    .filter((row): row is ComparisonRow => Boolean(row));
+
+  const desktopSections: Array<{ startId: string; title: string }> = [
+    { startId: "rowBillingCycle", title: t("sectionCoreFeatures") },
+    { startId: "rowAiMenuImport", title: t("sectionAiFeatures") },
+    { startId: "rowTableOrderingQr", title: t("sectionLiveOrdering") },
+    { startId: "rowDesign", title: t("sectionPremiumFeatures") },
+    { startId: "customFeature.waiterRequest", title: t("sectionAdvancedBusiness") },
+  ];
+  const desktopSectionByStartId = new Map<string, string>(
+    desktopSections.map((section) => [section.startId, section.title]),
+  );
 
   const freeHighlights = [
     t("freeHighlightForever"),
@@ -586,6 +640,7 @@ export default function PricingComparisonPage() {
                 </thead>
                 <tbody>
                   {rows.map((row, idx) => {
+                    const sectionTitle = desktopSectionByStartId.get(row.id);
                     const alt = idx % 2 === 1;
                     const rowTintFree = alt
                       ? "bg-slate-50/80 dark:bg-slate-800/28"
@@ -599,27 +654,36 @@ export default function PricingComparisonPage() {
                       "before:pointer-events-none before:absolute before:inset-0 before:content-[''] before:bg-slate-900/[0.025] dark:before:bg-black/12";
 
                     return (
-                      <tr
-                        key={row.id}
-                        className="pricing-row-item border-b border-slate-100/90 last:border-b-0 dark:border-slate-800/55"
-                      >
-                        <th
-                          className={`${cellBase} ${STICKY_FEATURE} hyphens-auto break-words text-start text-[11px] font-semibold leading-snug text-slate-700 dark:text-slate-300 sm:px-5 sm:text-sm ${COL_SEP} ${rowTintFree}`}
-                        >
-                          {row.label}
-                        </th>
-                        <td className={`${cellBase} ${COL_SEP} ${rowTintFree}`}>
-                          {renderCell(row.free, tYes, tNo)}
-                        </td>
-                        <td
-                          className={`${COL_PRO} ${cellBase} z-[1] font-semibold sm:px-5 [&_span]:text-slate-800 dark:[&_span]:text-slate-200 ${alt ? proStripeAlt : proStripe} ${cellProText}`}
-                        >
-                          {renderCell(row.pro, tYes, tNo)}
-                        </td>
-                        <td className={`${cellBase} ${rowTintCustom}`}>
-                          {renderCell(row.custom, tYes, tNo)}
-                        </td>
-                      </tr>
+                      <Fragment key={row.id}>
+                        {sectionTitle ? (
+                          <tr className="border-b border-slate-200/70 dark:border-slate-700/70">
+                            <th
+                              colSpan={4}
+                              className="bg-slate-100/75 px-4 py-2.5 text-start text-[10px] font-bold uppercase tracking-[0.08em] text-slate-600 dark:bg-slate-800/45 dark:text-slate-300 sm:px-6 sm:text-[11px]"
+                            >
+                              {sectionTitle}
+                            </th>
+                          </tr>
+                        ) : null}
+                        <tr className="pricing-row-item border-b border-slate-100/90 last:border-b-0 dark:border-slate-800/55">
+                          <th
+                            className={`${cellBase} ${STICKY_FEATURE} hyphens-auto break-words text-start text-[11px] font-semibold leading-snug text-slate-700 dark:text-slate-300 sm:px-5 sm:text-sm ${COL_SEP} ${rowTintFree}`}
+                          >
+                            {row.label}
+                          </th>
+                          <td className={`${cellBase} ${COL_SEP} ${rowTintFree}`}>
+                            {renderCell(row.free, tYes, tNo)}
+                          </td>
+                          <td
+                            className={`${COL_PRO} ${cellBase} z-[1] font-semibold sm:px-5 [&_span]:text-slate-800 dark:[&_span]:text-slate-200 ${alt ? proStripeAlt : proStripe} ${cellProText}`}
+                          >
+                            {renderCell(row.pro, tYes, tNo)}
+                          </td>
+                          <td className={`${cellBase} ${rowTintCustom}`}>
+                            {renderCell(row.custom, tYes, tNo)}
+                          </td>
+                        </tr>
+                      </Fragment>
                     );
                   })}
                 </tbody>

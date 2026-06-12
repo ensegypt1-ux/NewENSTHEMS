@@ -31,7 +31,7 @@ export default async function MobileAppPage({ params }: PageProps) {
   });
 
   return (
-    <main className="min-h-screen bg-white dark:bg-[#0d1117]">
+    <main className="mobile-app-page min-h-screen bg-white dark:bg-[#0d1117]">
       <HeroSection />
       <WorkflowApp />
 

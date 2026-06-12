@@ -45,26 +45,27 @@ function BrandBlock({
   aiBadge,
   showBadge = true,
   logoSize = "compact",
-  variant = "default",
 }: {
   aiBadge: string;
   showBadge?: boolean;
   logoSize?: "compact" | "header";
-  variant?: "default" | "mobile";
 }) {
-  if (variant === "mobile") {
-    return (
-      <div className="site-header__brand flex min-w-0 items-center">
-        <Logo size="header" className="site-header__logo shrink-0" />
-      </div>
-    );
-  }
+  const isMobileLogo = logoSize === "header";
 
   return (
-    <div className="flex flex-col items-start gap-1 text-start">
-      <Logo size={logoSize} />
+    <div className="site-header__brand flex min-w-0 flex-col items-start gap-0.5 text-start">
+      <Logo
+        size={logoSize}
+        className={isMobileLogo ? "site-header__logo shrink-0" : undefined}
+      />
       {showBadge && (
-        <p className="brand-tagline-shimmer mt-0.5 max-w-[13rem] text-[10px] font-medium leading-snug tracking-wide sm:text-[11px]">
+        <p
+          className={`brand-tagline-shimmer mt-0.5 font-medium leading-snug tracking-wide ${
+            isMobileLogo
+              ? "max-w-[11rem] text-[9px]"
+              : "max-w-[13rem] text-[10px] sm:text-[11px]"
+          }`}
+        >
           {aiBadge}
         </p>
       )}
@@ -179,8 +180,8 @@ function Header() {
     >
       <div className="container relative">
         {/* Mobile: brand at inline-start, actions at inline-end (follows html[dir]) */}
-        <div className="site-header__mobile-row flex h-10 items-center justify-between gap-2 lg:hidden">
-          <BrandBlock aiBadge={tHeader("aiBadge")} variant="mobile" />
+        <div className="site-header__mobile-row flex min-h-10 items-center justify-between gap-2 py-0.5 lg:hidden">
+          <BrandBlock aiBadge={tHeader("aiBadge")} logoSize="header" />
           <div className="flex shrink-0 items-center gap-1.5">
             {!isLoggedIn && !isAuthRoute && (
               <MarketingButtonLink

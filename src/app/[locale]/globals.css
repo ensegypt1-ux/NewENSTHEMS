@@ -3374,6 +3374,34 @@ textarea {
   margin-top: 0;
 }
 
+/* Keep footer attached on key marketing pages (remove white strip before footer) */
+.site-layout:has(.about-page) .home-main,
+.site-layout:has(.pricing-page) .home-main,
+.site-layout:has(.knowledge-base-page) .home-main,
+.site-layout:has(.mobile-app-page) .home-main,
+.site-layout:has(.contact-page) .home-main {
+  padding-bottom: 0;
+}
+
+.site-layout:has(.about-page) .site-global-footer,
+.site-layout:has(.pricing-page) .site-global-footer,
+.site-layout:has(.knowledge-base-page) .site-global-footer,
+.site-layout:has(.mobile-app-page) .site-global-footer,
+.site-layout:has(.contact-page) .site-global-footer {
+  margin-top: 0;
+  padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 640px) {
+  .site-layout:has(.about-page) .site-global-footer,
+  .site-layout:has(.pricing-page) .site-global-footer,
+  .site-layout:has(.knowledge-base-page) .site-global-footer,
+  .site-layout:has(.mobile-app-page) .site-global-footer,
+  .site-layout:has(.contact-page) .site-global-footer {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
 /* Legal footer / strip nav links */
 .legal-nav-link {
   position: relative;
@@ -4822,9 +4850,9 @@ textarea {
   }
 
   .site-header__mobile-row {
-    height: 2.5rem;
+    height: auto;
     min-height: 2.5rem;
-    max-height: 2.5rem;
+    max-height: none;
   }
 
   .site-header__logo,
