@@ -1,0 +1,229 @@
+import { BiCoffee, BiUser } from "react-icons/bi";
+import { FaMoneyBillWave } from "react-icons/fa";
+import { HiOutlineChartBar } from "react-icons/hi";
+import { Template, TemplateInfo } from "@/types/types";
+
+export const templates: Template[] = [
+  {
+    id: 0,
+    titleAr: "أنشئ المنيو الخاص بك في دقائق",
+    titleEn: "Create your menu in minutes",
+    labelAr: "سهولة وتحكم",
+    labelEn: "Easy and Control",
+    icon: BiCoffee,
+    textAr:
+      "أنشئ منيو إلكتروني احترافي لمطعمك أو كافيهك خلال دقائق بدون أي تعقيد لوحة تحكم بسيطة تتيح لك إضافة الأصناف والصور والأسعار بكل سهولة تحكم كامل في المنيو وحدّثه في أي وقت ليكون جاهزًا دائمًا لعملائك",
+    textEn:
+      "Create a professional electronic menu for your restaurant or cafe in minutes without any complexity. A simple control panel that allows you to add items, images, and prices easily. Full control over the menu and update it anytime to be always ready for your customers.",
+    image: "/images/temp/1sst.webp",
+    textAltAr: "يزيد المبيعات ويُحسن تجربة العملاء",
+    textAltEn: "Increases sales and improves customer experience",
+  },
+  {
+    id: 1,
+    titleAr: "تحكم كامل واحصائيات متكاملة ",
+    titleEn: "Full control and integrated statistics",
+    labelAr: "بسهولة وترتيب",
+    labelEn: "Easy and Order",
+    icon: BiUser,
+    textAr:
+      "تحكم كامل وسهل في إضافة القوائم وتعديلها من لوحة تحكم بسيطة ومرنة تتيح لك إدارة كل تفاصيل المنيو بسهولة ومشاهدة إحصائيات كاملة تساعدك على فهم أداء الأصناف وتحسين قراراتك لزيادة المبيعات وتطوير عملك",
+    textEn:
+      "Full control and easy to add and edit menus from a simple and flexible control panel that allows you to manage all details of the menu easily and view complete statistics that help you understand the performance of the items and improve your decisions to increase sales and develop your business",
+    image: "/images/temp/2nd.webp",
+    textAltAr: "لا يحتاج اى خبرة تقنية",
+    textAltEn: "No technical experience required",
+  },
+
+  {
+    id: 2,
+    titleAr: "تحكم كامل في التصنيفات",
+    titleEn: "Full Control in Categories",
+    labelAr: "إدارة ذكية لقوائم مطعمك ",
+    labelEn: "Smart management of your restaurant menu",
+    icon: HiOutlineChartBar,
+    textAr:
+      "رتّب الأصناف داخل كل تصنيف، وعدّل الأسماء والترتيب في أي وقت ليظهر المنيو بشكل منظم واحترافي أمام عملائك",
+    textEn:
+      "Sort items within each category, edit names and order anytime to display the menu in a professional and organized way in front of your customers",
+    image: "/images/temp/4rd.webp",
+    textAltAr: "أضف المنتجات بسهولة",
+    textAltEn: "Add products easily",
+  },
+  {
+    id: 3,
+    titleAr: "تحكم كامل في الأسعار",
+    titleEn: "Full Control in Prices",
+    labelAr: "تحكم كامل في كل منتج",
+    labelEn: "Full control of all products",
+    icon: FaMoneyBillWave,
+    textAr:
+      "أضف منتجات جديدة بسرعة وسهولة من لوحة التحكم، وحدد صورها وأسعارها ووصفها بدون أي تعقيد. يمكنك تفعيل أو تعطيل أي منتج في أي وقت ليظهر فقط ما ترغب بعرضه لعملائك، مع تحديث المنيو فورًا ليكون جاهزًا دائمًا لعملائك",
+    textEn:
+      "Add new products quickly and easily from the control panel, select their images, prices and descriptions without any complexity. You can enable or disable any product at any time to display only what you want to display to your customers, with the menu updated instantly to be always ready for your customers",
+    image: "/images/temp/4rd.webp",
+    textAltAr: "تمنحك مرونة كاملة للتحكم في المنيو",
+    textAltEn: "Full control of the menu",
+  },
+];
+
+export const templatesInfo: TemplateInfo[] = [
+  {
+    id: "default",
+    name: "Default Template",
+    nameAr: "القالب الافتراضي",
+    image: "/images/temp/def.webp",
+    description:
+      "Modern bilingual menu with hero section and smooth animations",
+    isNew: false,
+    canEdit: false,
+    descriptionAr: "قائمة عصرية ثنائية اللغة مع قسم بطولي ورسوم متحركة سلسة",
+    slug: "default",
+    colors: ["#0ea5e9", "#6366f1"],
+  },
+  {
+    id: "neon",
+    name: "Neon Template",
+    nameAr: "قالب النيون",
+    image: "/images/temp/neon.webp",
+    description: "Neon menu template with a modern design",
+    isNew: true,
+    canEdit: true,
+    descriptionAr: "قالب قائمة نيون مع تصميم عصري",
+    slug: "neon",
+    colors: ["#14b8a6", "#06b6d4"],
+    defaultColors: ["#14b8a6", "#06b6d4"],
+  },
+  {
+    id: "coffee",
+    name: "Coffee Template",
+    nameAr: "قالب القهوة",
+    image: "/images/temp/coffee.webp",
+    description: "Coffee menu template with a modern design",
+    descriptionAr: "قالب قائمة القهوة عصري  ",
+    isNew: false,
+    canEdit: false,
+    slug: "coffee",
+    colors: ["#f97316", "#facc15"],
+  },
+  {
+    id: "sky",
+    name: "Sky Template",
+    nameAr: "قالب السماء",
+    image: "/images/temp/sky.webp",
+    description: "Sky menu template with a modern design and blue color",
+    descriptionAr: "قالب قائمة السماء عصري ولون أزرق  ",
+    isNew: true,
+    canEdit: true,
+    slug: "sky",
+    colors: ["#3b82f6", "#2563eb"],
+    defaultColors: ["#3b82f6", "#2563eb"],
+  },
+  {
+    id: "emerald",
+    name: "Emerald Template",
+    nameAr: "قالب الزمرد",
+    image: "/images/temp/emerald.webp",
+    description:
+      "Elegant menu with burgundy and rose accents and a modern layout",
+    descriptionAr: "قائمة أنيقة بألوان عنابية ووردية وتخطيط عصري",
+    isNew: false,
+    canEdit: true,
+    customizeHeroTexts: false,
+    slug: "emerald",
+    colors: ["#4c1121", "#9b2545"],
+    defaultColors: ["#4c1121", "#9b2545"],
+  },
+  {
+    id: "noir",
+    name: "Noir Template",
+    nameAr: "قالب Noir",
+    image: "/images/temp/noir.webp",
+    description: "Dark, minimal menu theme",
+    descriptionAr: "قائمة بأسلوب داكن وبسيط",
+    isNew: false,
+    canEdit: true,
+    slug: "noir",
+    colors: ["#7c3aed", "#06b6d4"],
+    defaultColors: ["#7c3aed", "#06b6d4"],
+  },
+  {
+    id: "oceanic",
+    name: "Oceanic Template",
+    nameAr: "قالب المحيط",
+    image: "/images/temp/oceanic.webp",
+    description:
+      "Ocean-inspired menu with hero, bubbles, promo banner, and card grid",
+    descriptionAr:
+      "قائمة بطابع محيطي مع هيرو، فقاعات، بانر ترويجي، وشبكة بطاقات",
+    isNew: true,
+    canEdit: false,
+    customizeHeroTexts: false,
+    slug: "oceanic",
+    colors: ["#0ea5e9", "#0891b2"],
+  },
+  {
+    id: "pharaonic",
+    name: "Pharaonic Template",
+    nameAr: "القالب الفرعوني",
+    image: "/images/temp/pheronic.png",
+    description:
+      "Egyptian temple-inspired menu with gold accents, mystery reveals, and mobile-first UX",
+    descriptionAr:
+      "قائمة بطابع معبد مصري مع لمسات ذهبية، كشف تدريجي، وتجربة موبايل مميزة",
+    isNew: true,
+    canEdit: true,
+    customizeHeroTexts: true,
+    slug: "pharaonic",
+    colors: ["#C9A227", "#0E7C86"],
+    defaultColors: ["#C9A227", "#0E7C86"],
+  },
+  {
+    id: "arcane",
+    name: "Arcane Template",
+    nameAr: "قالب أركين",
+    image: "/images/temp/arcaneTemp.png",
+    description:
+      "Bold red and white cafe menu with corporate styling and smooth animations",
+    descriptionAr:
+      "قائمة كافيه بألوان أحمر وأبيض جريئة مع تصميم احترافي ورسوم متحركة",
+    isNew: true,
+    canEdit: true,
+    customizeHeroTexts: false,
+    slug: "arcane",
+    colors: ["#D1282A", "#991B1B"],
+    defaultColors: ["#D1282A", "#991B1B"],
+  },
+  {
+    id: "music",
+    name: "Music Template",
+    nameAr: "قالب الموسيقى",
+    image: "/images/temp/music.png",
+    description:
+      "Vinyl-inspired menu with mood-driven colors, genres, and a cinematic hero",
+    descriptionAr:
+      "قائمة بطابع موسيقي مع ألوان ديناميكية، تصنيفات أنماط، وهيرو سينمائي",
+    isNew: true,
+    canEdit: true,
+    customizeHeroTexts: false,
+    slug: "music",
+    colors: ["#4338CA", "#06B6D4"],
+    defaultColors: ["#4338CA", "#06B6D4"],
+  },
+  {
+    id: "retro",
+    name: "Retro Coffee Template",
+    nameAr: "قالب القهوة الكلاسيكي",
+    image: "/images/temp/retroTemp.png",
+    description:
+      "Warm retro cafe menu with paper textures, category tabs, and cozy styling",
+    descriptionAr:
+      "قائمة كافيه كلاسيكية دافئة مع خامات ورقية، تبويبات تصنيفات، وأسلوب مريح",
+    isNew: true,
+    canEdit: false,
+    customizeHeroTexts: false,
+    slug: "retro",
+    colors: ["#C67115", "#84623E"],
+    defaultColors: ["#C67115", "#84623E"],
+  },
+];

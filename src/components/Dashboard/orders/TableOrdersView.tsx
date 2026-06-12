@@ -1,0 +1,477 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { ColDef, ICellRendererParams } from "ag-grid-community";
+import ViewTime from "@/shared/ViewTime";
+import { axiosGet } from "@/shared/axiosCall";
+import {
+  IoReceiptOutline,
+  IoSearchOutline,
+  IoEyeOutline,
+} from "react-icons/io5";
+import { NotificationPermissionCard } from "@/components/Global/NotificationPermissionCard";
+import PageTitleWithHelp from "@/components/Dashboard/PageTitleWithHelp";
+import DataTable from "@/components/Custom/DataTable";
+import LinkTo from "@/components/Global/LinkTo";
+import { useAppSelector } from "@/store/hooks";
+import { isFreePlanUser } from "@/lib/subscription";
+import { useMenuActivitySocket } from "@/hooks/useMenuActivitySocket";
+import {
+  countPendingOrders,
+  orderStatusTone,
+  resolveEntryTime,
+  resolveListEntryStatus,
+} from "@/lib/tableOrders";
+import type {
+  ActivityCallsPayload,
+  CallEntry,
+  CallEntryDetail,
+} from "@/types/tableOrders";
+import OrderDetailsModal from "./OrderDetailsModal";
+import OrdersMobileList from "./OrdersMobileList";
+import OrderActionButtons from "./OrderActionButtons";
+
+const PAGE_SIZE = 10;
+
+export default function TableOrdersView() {
+  const t = useTranslations("tableOrders");
+  const locale = useLocale();
+  const params = useParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const menuId =
+    typeof params.menu === "string"
+      ? params.menu
+      : ((params.menu as string[])?.[0] ?? "");
+
+  const [entries, setEntries] = useState<CallEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [liveTick, setLiveTick] = useState(0);
+  const [modalEntry, setModalEntry] = useState<CallEntryDetail | null>(null);
+  const [modalLoading, setModalLoading] = useState(false);
+
+  const isRTL = locale === "ar";
+  const currency = useAppSelector((s) => s.menuData.menu?.currency ?? "");
+  const userData = useAppSelector((s) => s.auth.data);
+  const isFreePlan = isFreePlanUser(userData);
+  const pendingCount = useMemo(() => countPendingOrders(entries), [entries]);
+
+  const entryParam = searchParams.get("entry");
+
+  const openModal = useCallback(
+    (id: string) => {
+      const sp = new URLSearchParams(Array.from(searchParams.entries()));
+      sp.set("entry", id);
+      router.replace(`${pathname}?${sp.toString()}`, { scroll: false });
+    },
+    [router, pathname, searchParams],
+  );
+
+  const closeModal = useCallback(() => {
+    const sp = new URLSearchParams(Array.from(searchParams.entries()));
+    sp.delete("entry");
+    const qs = sp.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    setModalEntry(null);
+  }, [router, pathname, searchParams]);
+
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedSearch(searchInput.trim()), 100);
+    return () => clearTimeout(id);
+  }, [searchInput]);
+
+  const searchBaseline = useRef<string | null>(null);
+  useEffect(() => {
+    if (searchBaseline.current === null) {
+      searchBaseline.current = debouncedSearch;
+      return;
+    }
+    if (searchBaseline.current !== debouncedSearch) {
+      searchBaseline.current = debouncedSearch;
+      setPage(1);
+    }
+  }, [debouncedSearch]);
+
+  const fetchLogs = useCallback(async () => {
+    if (!menuId || isFreePlan) {
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      const paramsQ: Record<string, unknown> = { page, limit: PAGE_SIZE };
+      if (debouncedSearch.length > 0) paramsQ.q = debouncedSearch;
+
+      const result = await axiosGet<ActivityCallsPayload>(
+        `/menus/${menuId}/activity-logs`,
+        locale,
+        undefined,
+        paramsQ,
+      );
+
+      if (result.status && result.data) {
+        const p = result.data;
+        setEntries(p.entries ?? p.calls ?? []);
+        setTotalPages(Math.max(1, p.totalPages ?? 1));
+      } else {
+        setEntries([]);
+        setTotalPages(1);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [menuId, locale, page, debouncedSearch, liveTick, isFreePlan]);
+
+  useEffect(() => {
+    void fetchLogs();
+  }, [fetchLogs]);
+
+  const handleLiveUpdate = useCallback(() => {
+    setPage(1);
+    setLiveTick((n) => n + 1);
+  }, []);
+
+  useMenuActivitySocket(isFreePlan ? "" : menuId, handleLiveUpdate);
+
+  const handleActionComplete = useCallback(() => {
+    handleLiveUpdate();
+  }, [handleLiveUpdate]);
+
+  useEffect(() => {
+    if (!entryParam || !menuId) {
+      setModalEntry(null);
+      return;
+    }
+
+    let cancelled = false;
+    setModalEntry(null);
+    setModalLoading(true);
+
+    axiosGet<{ entry: CallEntryDetail } | CallEntryDetail>(
+      `/menus/${menuId}/activity-logs/${entryParam}`,
+      locale,
+    )
+      .then((result) => {
+        if (cancelled) return;
+        if (result.status && result.data) {
+          const raw = result.data as Record<string, unknown>;
+          const resolved = (raw.entry ?? raw) as CallEntryDetail;
+          setModalEntry(resolved);
+        }
+        setModalLoading(false);
+      })
+      .catch(() => {
+        if (!cancelled) setModalLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [entryParam, menuId, locale, liveTick]);
+
+  useEffect(() => {
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && entryParam) closeModal();
+    };
+    window.addEventListener("keydown", onEsc);
+    return () => window.removeEventListener("keydown", onEsc);
+  }, [entryParam, closeModal]);
+
+  const columnDefs = useMemo<ColDef<CallEntry>[]>(
+    () => [
+      {
+        headerName: t("colOrderId"),
+        field: "orderId",
+        width: 110,
+        cellRenderer: (p: ICellRendererParams<CallEntry>) => (
+          <span className="font-semibold text-slate-700 dark:text-slate-200">
+            #{p.data?.orderId}
+          </span>
+        ),
+      },
+      {
+        headerName: t("colTable"),
+        width: 100,
+        cellRenderer: (p: ICellRendererParams<CallEntry>) => (
+          <span className="text-slate-700 dark:text-slate-200">
+            {p.data?.tableNumber?.trim() || "—"}
+          </span>
+        ),
+      },
+      {
+        headerName: t("colCustomer"),
+        flex: 1,
+        minWidth: 120,
+        cellRenderer: (p: ICellRendererParams<CallEntry>) => (
+          <span className="text-slate-700 dark:text-slate-200">
+            {p.data?.customerName?.trim() || "—"}
+          </span>
+        ),
+      },
+      {
+        headerName: t("colItems"),
+        width: 80,
+        sortable: false,
+        cellRenderer: (p: ICellRendererParams<CallEntry>) => (
+          <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-200">
+            {p.data?.items?.length ?? 0}
+          </span>
+        ),
+      },
+      {
+        headerName: t("colStatus"),
+        width: 130,
+        cellRenderer: (p: ICellRendererParams<CallEntry>) => {
+          const status = resolveListEntryStatus(p.data!);
+          const tone = orderStatusTone(status);
+          return (
+            <span
+              className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${tone.pill}`}
+            >
+              {t(`orderStatus.${status}` as never)}
+            </span>
+          );
+        },
+      },
+      {
+        headerName: t("colTotal"),
+        field: "totalPrice",
+        width: 120,
+        cellRenderer: (p: ICellRendererParams<CallEntry>) => (
+          <span className="font-semibold text-slate-800 dark:text-slate-100">
+            {p.data?.totalPrice ?? 0}
+            {currency && (
+              <span className="ms-1 text-xs font-normal text-slate-500 dark:text-slate-400">
+                {currency}
+              </span>
+            )}
+          </span>
+        ),
+      },
+      {
+        headerName: t("colTime"),
+        flex: 1,
+        minWidth: 150,
+        cellRenderer: (p: ICellRendererParams<CallEntry>) => {
+          const rawTime = resolveEntryTime(p.data?.actionDetails);
+          if (!rawTime) return <span className="text-slate-400">—</span>;
+          return (
+            <span className="text-slate-600 dark:text-slate-300 text-sm">
+              <ViewTime data={rawTime} />
+            </span>
+          );
+        },
+      },
+      {
+        headerName: t("colActions"),
+        width: 220,
+        pinned: !isRTL ? "right" : "left",
+        sortable: false,
+        cellRenderer: (p: ICellRendererParams<CallEntry>) => {
+          const row = p.data;
+          if (!row) return null;
+          const status = resolveListEntryStatus(row);
+          return (
+            <div className="flex items-center gap-2 py-1">
+              <OrderActionButtons
+                menuId={menuId}
+                entry={row}
+                status={status}
+                onComplete={handleActionComplete}
+              />
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openModal(row.id);
+                }}
+                className="inline-flex items-center gap-1 rounded-lg border border-violet-200 bg-violet-50 px-2 py-1.5 text-xs font-medium text-violet-700 transition-colors hover:bg-violet-100 dark:border-violet-700 dark:bg-violet-950/40 dark:text-violet-300 dark:hover:bg-violet-900/50"
+              >
+                <IoEyeOutline className="text-base" />
+                {t("view")}
+              </button>
+            </div>
+          );
+        },
+      },
+    ],
+    [t, openModal, currency, menuId, handleActionComplete, isRTL],
+  );
+
+  const showModal =
+    Boolean(entryParam) && (modalLoading || Boolean(modalEntry));
+
+  if (isFreePlan) {
+    return (
+      <div
+        id="onboarding-orders-upgrade"
+        className="flex min-h-[50vh] flex-col items-center justify-center gap-3 px-4 text-center md:min-h-[60vh] md:gap-4"
+      >
+        <PageTitleWithHelp className="justify-center">
+          <h1 className="text-xl font-bold text-slate-800 sm:text-2xl md:text-3xl dark:text-slate-100">
+            {t("proOnlyTitle")}
+          </h1>
+        </PageTitleWithHelp>
+        <p className="max-w-md text-sm text-slate-500 md:text-base dark:text-slate-400">
+          {t("proOnlyDescription")}
+        </p>
+        <LinkTo
+          href={`/dashboard/${menuId}/subscription`}
+          className="mt-2 inline-flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-primary to-primary/80 px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] md:mt-4 md:px-8"
+        >
+          {t("upgradeShort")}
+        </LinkTo>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 animate-fadeIn">
+      <NotificationPermissionCard />
+
+      <header
+        id="onboarding-orders-header"
+        className="relative overflow-hidden rounded-2xl border border-violet-200/60 bg-linear-to-br from-violet-50 via-fuchsia-50/80 to-white p-6 shadow-sm dark:border-violet-500/20 dark:from-violet-950/50 dark:via-fuchsia-950/30 dark:to-slate-900 md:p-8"
+      >
+        <div
+          className="pointer-events-none absolute -end-16 -top-16 h-48 w-48 rounded-full bg-linear-to-br from-violet-400/20 to-fuchsia-400/10 blur-2xl dark:from-violet-500/15 dark:to-fuchsia-500/10"
+          aria-hidden
+        />
+        <div className="relative flex flex-wrap items-start justify-between gap-4">
+          <div className="flex gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-500/25">
+              <IoReceiptOutline className="text-2xl" aria-hidden />
+            </div>
+            <div>
+              <PageTitleWithHelp>
+                <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white md:text-3xl">
+                  {t("title")}
+                </h1>
+              </PageTitleWithHelp>
+              <p className="mt-1 max-w-xl text-sm text-slate-600 dark:text-slate-300">
+                {t("subtitle")}
+              </p>
+            </div>
+          </div>
+          {pendingCount > 0 && (
+            <span className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-sm font-bold text-amber-800 ring-1 ring-amber-300/60 dark:bg-amber-900/40 dark:text-amber-200 dark:ring-amber-700/50">
+              {t("pendingBadge", { count: pendingCount })}
+            </span>
+          )}
+        </div>
+
+        <div id="onboarding-orders-search" className="relative mt-6">
+          <label htmlFor="orders-search" className="sr-only">
+            {t("searchPlaceholder")}
+          </label>
+          <IoSearchOutline
+            className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-violet-500 dark:text-violet-400 ${isRTL ? "end-3" : "start-3"}`}
+            aria-hidden
+          />
+          <input
+            id="orders-search"
+            type="search"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder={t("searchPlaceholder")}
+            className={`w-full rounded-xl border border-violet-200/90 bg-white/90 py-3 text-sm text-slate-900 shadow-inner shadow-violet-500/5 placeholder:text-slate-400 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-500/35 dark:border-violet-500/30 dark:bg-slate-800/90 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-violet-400 dark:focus:ring-violet-400/25 ${isRTL ? "pe-11 ps-4" : "ps-11 pe-4"}`}
+            autoComplete="off"
+          />
+        </div>
+      </header>
+
+      {!loading && entries.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-violet-200 bg-white px-6 py-14 text-center dark:border-violet-800/40 dark:bg-slate-800/50">
+          <IoReceiptOutline className="mx-auto mb-3 text-4xl text-violet-400" />
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            {debouncedSearch ? t("noSearchResults") : t("empty")}
+          </p>
+        </div>
+      ) : (
+        <>
+          <OrdersMobileList
+            entries={entries}
+            currency={currency}
+            menuId={menuId}
+            onView={openModal}
+            onActionComplete={handleActionComplete}
+          />
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 md:hidden">
+              <button
+                type="button"
+                disabled={page <= 1 || loading}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="rounded-xl border border-violet-200 px-4 py-2 text-sm font-medium text-violet-700 transition hover:bg-violet-50 disabled:opacity-50 dark:border-violet-700 dark:text-violet-300 dark:hover:bg-violet-950/30"
+              >
+                {t("prev")}
+              </button>
+              <span className="text-sm text-slate-500 dark:text-slate-400">
+                {t("pageInfo", { page, totalPages })}
+              </span>
+              <button
+                type="button"
+                disabled={page >= totalPages || loading}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                className="rounded-xl border border-violet-200 px-4 py-2 text-sm font-medium text-violet-700 transition hover:bg-violet-50 disabled:opacity-50 dark:border-violet-700 dark:text-violet-300 dark:hover:bg-violet-950/30"
+              >
+                {t("next")}
+              </button>
+            </div>
+          )}
+
+          <div id="onboarding-orders-table" className="hidden md:block">
+            <DataTable<CallEntry>
+              rowData={entries}
+              columnDefs={columnDefs}
+              loading={loading}
+              locale={locale}
+              showRowNumbers
+              pagination
+              paginationPageSize={PAGE_SIZE}
+              page={page}
+              totalPages={totalPages}
+              onPageChange={(p) => setPage(p)}
+              fitContent
+              rowHeight={64}
+            />
+          </div>
+
+          {loading && (
+            <div className="md:hidden space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-44 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800"
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {showModal && (
+        <OrderDetailsModal
+          entry={modalEntry}
+          loading={modalLoading}
+          currency={currency}
+          onClose={closeModal}
+        />
+      )}
+    </div>
+  );
+}
